@@ -342,7 +342,7 @@ class MapActivity : AppCompatActivity() {
         
         // SOS Help Hold Button - Set up 3-second hold listener
         fabSosHelp.setOnSosActivatedListener {
-            sendEmergencySMS()
+            showSosHelpDialog()
         }
     }
 
@@ -1845,6 +1845,28 @@ class MapActivity : AppCompatActivity() {
         } else {
             super.onOptionsItemSelected(item)
         }
+    }
+    
+    // SOS Help Dialog
+    private fun showSosHelpDialog() {
+        // Get current user ID from AppSettings
+        val appSettings = com.example.gzingapp.utils.AppSettings(this)
+        val userId = appSettings.getUserId()
+        
+        Log.d("MapActivity", "Showing SOS dialog for user ID: $userId")
+        
+        val sosDialog = com.example.gzingapp.ui.SosHelpDialog(
+            context = this,
+            onSosSent = {
+                // Handle successful SOS sent
+                Toast.makeText(this, "Emergency SMS sent to all contacts!", Toast.LENGTH_LONG).show()
+            },
+            onDismiss = {
+                // Handle dialog dismissal
+                Log.d("SosDialog", "SOS dialog dismissed")
+            }
+        )
+        sosDialog.show()
     }
     
     private fun sendEmergencySMS() {
