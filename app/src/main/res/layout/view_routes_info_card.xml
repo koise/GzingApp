@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/routesInfoContainer"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="16dp"
+    android:layout_marginEnd="16dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="8dp"
+    android:orientation="vertical"
+    android:background="@drawable/rounded_background"
+    android:padding="16dp">
+
+    <!-- Header with title and chevron -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="12dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Route Information"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#8B4513" />
+
+        <ImageView
+            android:id="@+id/btnCollapseRoutes"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_expand_more"
+            android:tint="#8B4513"
+            android:background="?attr/selectableItemBackgroundBorderless" />
+
+    </LinearLayout>
+
+    <!-- Content container (toggle visibility) -->
+    <LinearLayout
+        android:id="@+id/routesContentContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Current Location to Waypoint 1 Row -->
+        <LinearLayout
+            android:id="@+id/rowCurrentToWaypoint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="From"
+                android:textSize="13sp"
+                android:textColor="#666666"
+                android:layout_marginEnd="8dp" />
+
+            <TextView
+                    android:id="@+id/tvCurrentToWaypoint"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Current Location → Waypoint 1"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:lineSpacingExtra="2dp" />
+        </LinearLayout>
+
+        <!-- Destination Row -->
+        <LinearLayout
+            android:id="@+id/rowDestination"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="To"
+                android:textSize="13sp"
+                android:textColor="#666666"
+                android:layout_marginEnd="8dp" />
+
+            <TextView
+                android:id="@+id/tvDestination"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Destination"
+                android:textSize="14sp"
+                android:textColor="#333333" />
+        </LinearLayout>
+
+        <!-- Distance and ETA Row -->
+        <LinearLayout
+            android:id="@+id/rowStats"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:id="@+id/tvDistance"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Distance: --"
+                android:textSize="14sp"
+                android:textColor="#333333" />
+
+            <TextView
+                android:id="@+id/tvEta"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ETA: --"
+                android:textSize="14sp"
+                android:textColor="#333333" />
+        </LinearLayout>
+
+        <!-- Estimated Fare Row -->
+        <LinearLayout
+            android:id="@+id/rowFare"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Estimated Fare"
+                android:textSize="13sp"
+                android:textColor="#666666"
+                android:layout_marginEnd="8dp" />
+
+            <TextView
+                android:id="@+id/tvFare"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₱ --"
+                android:textSize="14sp"
+                android:textColor="#333333" />
+        </LinearLayout>
+
+        <!-- Traffic Indicator Row -->
+        <LinearLayout
+            android:id="@+id/rowTraffic"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Traffic"
+                android:textSize="13sp"
+                android:textColor="#666666"
+                android:layout_marginEnd="8dp" />
+
+            <View
+                android:id="@+id/trafficDot"
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:background="@drawable/circle_background"
+                android:layout_marginEnd="6dp" />
+
+            <TextView
+                android:id="@+id/tvTrafficStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="--"
+                android:textSize="14sp"
+                android:textColor="#333333" />
+
+        </LinearLayout>
+
+        <!-- Waypoint Count Row -->
+        <LinearLayout
+            android:id="@+id/rowWaypointCount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Waypoints"
+                android:textSize="13sp"
+                android:textColor="#666666"
+                android:layout_marginEnd="8dp" />
+
+            <TextView
+                android:id="@+id/tvWaypointCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="-- stops"
+                android:textSize="14sp"
+                android:textColor="#333333" />
+
+        </LinearLayout>
+
+        <!-- Navigation Buttons Container -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+
+            <!-- Start Navigation Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnStartNavigationRoutes"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Start Navigation"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginEnd="8dp"
+                app:icon="@drawable/ic_navigation"
+                app:iconGravity="textStart"
+                app:backgroundTint="#8B4513"
+                android:textColor="@android:color/white" />
+
+            <!-- Stop Navigation Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnStopNavigationRoutes"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Stop Navigation"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                app:icon="@drawable/ic_stop"
+                app:iconGravity="textStart"
+                app:backgroundTint="#E74C3C"
+                android:textColor="@android:color/white" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

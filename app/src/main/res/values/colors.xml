@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary Beige & Brown Palette -->
+    <color name="primary_beige">#F5E6D3</color>
+    <color name="primary_beige_variant">#E8D5C4</color>
+    <color name="primary_brown">#8B4513</color>
+    <color name="primary_brown_variant">#A0522D</color>
+    
+    <!-- Secondary Colors -->
+    <color name="secondary_cream">#FFF8DC</color>
+    <color name="secondary_tan">#D2B48C</color>
+    <color name="secondary_dark_brown">#654321</color>
+    <color name="secondary_light_brown">#CD853F</color>
+    
+    <!-- Accent Colors -->
+    <color name="accent_gold">#DAA520</color>
+    <color name="accent_amber">#FFBF00</color>
+    <color name="accent_rust">#B7410E</color>
+    
+    <!-- Neutral Colors -->
+    <color name="white">#FFFFFFFF</color>
+    <color name="black">#FF000000</color>
+    <color name="gray_light">#F5F5F5</color>
+    <color name="gray_medium">#CCCCCC</color>
+    <color name="gray_dark">#666666</color>
+    
+    <!-- Status Colors -->
+    <color name="success_green">#4CAF50</color>
+    <color name="warning_orange">#FF9800</color>
+    <color name="error_red">#F44336</color>
+    <color name="info_blue">#2196F3</color>
+    
+    <!-- Dark Theme Colors -->
+    <color name="dark_background">#1A1A1A</color>
+    <color name="dark_surface">#2D2D2D</color>
+    <color name="dark_primary">#D2B48C</color>
+    <color name="dark_secondary">#8B4513</color>
+    <color name="dark_text_primary">#FFFFFF</color>
+    <color name="dark_text_secondary">#CCCCCC</color>
+    
+    <!-- Places Activity Colors -->
+    <color name="primary_color">#8B4513</color>
+    <color name="primary_light">#F5E6D3</color>
+    <color name="background_light">#F5F5F5</color>
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    
+    <!-- Logs Activity Colors -->
+    <color name="primary">#8B4513</color>
+    <color name="success">#4CAF50</color>
+    <color name="warning">#FF9800</color>
+    <color name="error">#F44336</color>
+    <color name="info">#2196F3</color>
+    <color name="divider">#E0E0E0</color>
+    <color name="card_stroke">#E0E0E0</color>
+    <color name="chip_background">#F5F5F5</color>
+    
+    <!-- Routes Activity Colors -->
+    <color name="gray">#757575</color>
+    
+    <!-- Navigation History Colors -->
+    <color name="background_secondary">#F8F9FA</color>
+    <color name="favorite">#E91E63</color>
+    <color name="unfavorite">#E0E0E0</color>
+    
+    <!-- Emergency SMS Colors -->
+    <color name="medical">#4CAF50</color>
+    <color name="security">#FF9800</color>
+    <color name="dialog_background">#FFFFFF</color>
+</resources>

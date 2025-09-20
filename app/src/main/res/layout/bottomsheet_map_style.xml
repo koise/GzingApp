@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Select map style"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:paddingBottom="12dp" />
+
+    <RadioGroup
+        android:id="@+id/rgStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RadioButton
+            android:id="@+id/rbStreets"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Streets" />
+
+        <RadioButton
+            android:id="@+id/rbSatellite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Satellite" />
+
+        <RadioButton
+            android:id="@+id/rbTraffic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Traffic" />
+
+        <RadioButton
+            android:id="@+id/rbDark"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Dark" />
+
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/btnStyleApply"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Apply"
+        android:layout_marginTop="16dp" />
+
+</LinearLayout>
+
+
+

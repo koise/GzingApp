@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_profile"
+            android:icon="@drawable/ic_person_placeholder"
+            android:title="Profile" />
+
+        <item
+            android:id="@+id/nav_places"
+            android:icon="@drawable/ic_places"
+            android:title="Places" />
+
+        <item
+            android:id="@+id/nav_saved_routes"
+            android:icon="@drawable/ic_route"
+            android:title="Saved Routes" />
+
+        <item
+            android:id="@+id/nav_settings"
+            android:icon="@drawable/ic_edit"
+            android:title="Settings" />
+
+
+    </group>
+
+    <item android:title="Account">
+        <menu>
+            <item
+                android:id="@+id/nav_logout"
+                android:icon="@drawable/ic_logout"
+                android:title="Logout" />
+        </menu>
+    </item>
+
+</menu>

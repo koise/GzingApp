@@ -1,0 +1,8 @@
+[14-Sep-2025 07:34:02 UTC] Database connection attempt - trying hosts: localhost, localhost, 127.0.0.1
+[14-Sep-2025 07:34:02 UTC] Database config - host: localhost, dbname: u126959096_gzing_admin, username: u126959096_gzing_admin
+[14-Sep-2025 07:34:02 UTC] Attempting connection to: mysql:host=localhost;dbname=u126959096_gzing_admin;charset=utf8mb4
+[14-Sep-2025 07:34:02 UTC] SUCCESS: Connected to database on host: localhost
+[14-Sep-2025 07:38:17 UTC] Database connection attempt - trying hosts: localhost, localhost, 127.0.0.1
+[14-Sep-2025 07:38:17 UTC] Database config - host: localhost, dbname: u126959096_gzing_admin, username: u126959096_gzing_admin
+[14-Sep-2025 07:38:17 UTC] Attempting connection to: mysql:host=localhost;dbname=u126959096_gzing_admin;charset=utf8mb4
+[14-Sep-2025 07:38:17 UTC] SUCCESS: Connected to database on host: localhost

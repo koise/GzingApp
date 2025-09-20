@@ -1,0 +1,609 @@
+[14-Sep-2025 07:33:10 UTC] Navigation Routes API Request: {"timestamp":"2025-09-14 07:33:10","method":"GET","url":"\/mobile-api\/endpoints\/navigation-routes\/get_navigation_routes.php?user_id=34&limit=100&offset=0&order_by=created_at&order_direction=DESC&favorites_only=false&search=","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/140.0.0.0 Safari\/537.36 Edg\/140.0.0.0","ip":"112.204.103.23","get_params":{"user_id":"34","limit":"100","offset":"0","order_by":"created_at","order_direction":"DESC","favorites_only":"false","search":""},"post_params":[]}
+[14-Sep-2025 07:33:10 UTC] Attempting to include database configuration...
+[14-Sep-2025 07:33:10 UTC] Database configuration included. Database class exists: YES
+[14-Sep-2025 07:33:10 UTC] Query parameters - user_id: 34, limit: 100, offset: 0, order_by: created_at, order_direction: DESC, favorites_only: true, search: ''
+[14-Sep-2025 07:33:10 UTC] Attempting to create Database instance...
+[14-Sep-2025 07:33:10 UTC] Database connection attempt - trying hosts: localhost, localhost, 127.0.0.1
+[14-Sep-2025 07:33:10 UTC] Database config - host: localhost, dbname: u126959096_gzing_admin, username: u126959096_gzing_admin
+[14-Sep-2025 07:33:10 UTC] Attempting connection to: mysql:host=localhost;dbname=u126959096_gzing_admin;charset=utf8mb4
+[14-Sep-2025 07:33:10 UTC] SUCCESS: Connected to database on host: localhost
+[14-Sep-2025 07:33:10 UTC] Database instance created successfully
+[14-Sep-2025 07:33:10 UTC] Attempting to get database connection...
+[14-Sep-2025 07:33:10 UTC] Database connection result: SUCCESS
+[14-Sep-2025 07:33:10 UTC] WHERE clause: user_id = :user_id AND is_favorite = 1
+[14-Sep-2025 07:33:10 UTC] Parameters: {":user_id":34}
+[14-Sep-2025 07:33:10 UTC] Count SQL: SELECT COUNT(*) as total FROM navigation_routes WHERE user_id = :user_id AND is_favorite = 1
+[14-Sep-2025 07:33:10 UTC] Total count result: 0
+[14-Sep-2025 07:33:10 UTC] Main SQL: SELECT * FROM navigation_routes 
+            WHERE user_id = :user_id AND is_favorite = 1 
+            ORDER BY created_at DESC 
+            LIMIT :limit OFFSET :offset
+[14-Sep-2025 07:33:10 UTC] Routes found: 0
+[14-Sep-2025 07:33:11 UTC] Navigation Routes API Request: {"timestamp":"2025-09-14 07:33:11","method":"GET","url":"\/mobile-api\/endpoints\/navigation-routes\/get_navigation_routes.php?user_id=34&limit=100&offset=0&order_by=created_at&order_direction=DESC&favorites_only=false&search=","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/140.0.0.0 Safari\/537.36 Edg\/140.0.0.0","ip":"112.204.103.23","get_params":{"user_id":"34","limit":"100","offset":"0","order_by":"created_at","order_direction":"DESC","favorites_only":"false","search":""},"post_params":[]}
+[14-Sep-2025 07:33:11 UTC] Attempting to include database configuration...
+[14-Sep-2025 07:33:11 UTC] Database configuration included. Database class exists: YES
+[14-Sep-2025 07:33:11 UTC] Query parameters - user_id: 34, limit: 100, offset: 0, order_by: created_at, order_direction: DESC, favorites_only: true, search: ''
+[14-Sep-2025 07:33:11 UTC] Attempting to create Database instance...
+[14-Sep-2025 07:33:11 UTC] Database connection attempt - trying hosts: localhost, localhost, 127.0.0.1
+[14-Sep-2025 07:33:11 UTC] Database config - host: localhost, dbname: u126959096_gzing_admin, username: u126959096_gzing_admin
+[14-Sep-2025 07:33:11 UTC] Attempting connection to: mysql:host=localhost;dbname=u126959096_gzing_admin;charset=utf8mb4
+[14-Sep-2025 07:33:11 UTC] SUCCESS: Connected to database on host: localhost
+[14-Sep-2025 07:33:11 UTC] Database instance created successfully
+[14-Sep-2025 07:33:11 UTC] Attempting to get database connection...
+[14-Sep-2025 07:33:11 UTC] Database connection result: SUCCESS
+[14-Sep-2025 07:33:11 UTC] WHERE clause: user_id = :user_id AND is_favorite = 1
+[14-Sep-2025 07:33:11 UTC] Parameters: {":user_id":34}
+[14-Sep-2025 07:33:11 UTC] Count SQL: SELECT COUNT(*) as total FROM navigation_routes WHERE user_id = :user_id AND is_favorite = 1
+[14-Sep-2025 07:33:11 UTC] Total count result: 0
+[14-Sep-2025 07:33:11 UTC] Main SQL: SELECT * FROM navigation_routes 
+            WHERE user_id = :user_id AND is_favorite = 1 
+            ORDER BY created_at DESC 
+            LIMIT :limit OFFSET :offset
+[14-Sep-2025 07:33:11 UTC] Routes found: 0
+[14-Sep-2025 07:33:11 UTC] Navigation Routes API Request: {"timestamp":"2025-09-14 07:33:11","method":"GET","url":"\/mobile-api\/endpoints\/navigation-routes\/get_navigation_routes.php?user_id=34&limit=100&offset=0&order_by=created_at&order_direction=DESC&favorites_only=false&search=","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/140.0.0.0 Safari\/537.36 Edg\/140.0.0.0","ip":"112.204.103.23","get_params":{"user_id":"34","limit":"100","offset":"0","order_by":"created_at","order_direction":"DESC","favorites_only":"false","search":""},"post_params":[]}
+[14-Sep-2025 07:33:11 UTC] Attempting to include database configuration...
+[14-Sep-2025 07:33:11 UTC] Database configuration included. Database class exists: YES
+[14-Sep-2025 07:33:11 UTC] Query parameters - user_id: 34, limit: 100, offset: 0, order_by: created_at, order_direction: DESC, favorites_only: true, search: ''
+[14-Sep-2025 07:33:11 UTC] Attempting to create Database instance...
+[14-Sep-2025 07:33:11 UTC] Database connection attempt - trying hosts: localhost, localhost, 127.0.0.1
+[14-Sep-2025 07:33:11 UTC] Database config - host: localhost, dbname: u126959096_gzing_admin, username: u126959096_gzing_admin
+[14-Sep-2025 07:33:11 UTC] Attempting connection to: mysql:host=localhost;dbname=u126959096_gzing_admin;charset=utf8mb4
+[14-Sep-2025 07:33:11 UTC] SUCCESS: Connected to database on host: localhost
+[14-Sep-2025 07:33:11 UTC] Database instance created successfully
+[14-Sep-2025 07:33:11 UTC] Attempting to get database connection...
+[14-Sep-2025 07:33:11 UTC] Database connection result: SUCCESS
+[14-Sep-2025 07:33:11 UTC] WHERE clause: user_id = :user_id AND is_favorite = 1
+[14-Sep-2025 07:33:11 UTC] Parameters: {":user_id":34}
+[14-Sep-2025 07:33:11 UTC] Count SQL: SELECT COUNT(*) as total FROM navigation_routes WHERE user_id = :user_id AND is_favorite = 1
+[14-Sep-2025 07:33:11 UTC] Total count result: 0
+[14-Sep-2025 07:33:11 UTC] Main SQL: SELECT * FROM navigation_routes 
+            WHERE user_id = :user_id AND is_favorite = 1 
+            ORDER BY created_at DESC 
+            LIMIT :limit OFFSET :offset
+[14-Sep-2025 07:33:11 UTC] Routes found: 0
+[14-Sep-2025 07:33:11 UTC] Navigation Routes API Request: {"timestamp":"2025-09-14 07:33:11","method":"GET","url":"\/mobile-api\/endpoints\/navigation-routes\/get_navigation_routes.php?user_id=34&limit=100&offset=0&order_by=created_at&order_direction=DESC&favorites_only=false&search=","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/140.0.0.0 Safari\/537.36 Edg\/140.0.0.0","ip":"112.204.103.23","get_params":{"user_id":"34","limit":"100","offset":"0","order_by":"created_at","order_direction":"DESC","favorites_only":"false","search":""},"post_params":[]}
+[14-Sep-2025 07:33:11 UTC] Attempting to include database configuration...
+[14-Sep-2025 07:33:11 UTC] Database configuration included. Database class exists: YES
+[14-Sep-2025 07:33:11 UTC] Query parameters - user_id: 34, limit: 100, offset: 0, order_by: created_at, order_direction: DESC, favorites_only: true, search: ''
+[14-Sep-2025 07:33:11 UTC] Attempting to create Database instance...
+[14-Sep-2025 07:33:11 UTC] Database connection attempt - trying hosts: localhost, localhost, 127.0.0.1
+[14-Sep-2025 07:33:11 UTC] Database config - host: localhost, dbname: u126959096_gzing_admin, username: u126959096_gzing_admin
+[14-Sep-2025 07:33:11 UTC] Attempting connection to: mysql:host=localhost;dbname=u126959096_gzing_admin;charset=utf8mb4
+[14-Sep-2025 07:33:11 UTC] SUCCESS: Connected to database on host: localhost
+[14-Sep-2025 07:33:11 UTC] Database instance created successfully
+[14-Sep-2025 07:33:11 UTC] Attempting to get database connection...
+[14-Sep-2025 07:33:11 UTC] Database connection result: SUCCESS
+[14-Sep-2025 07:33:11 UTC] WHERE clause: user_id = :user_id AND is_favorite = 1
+[14-Sep-2025 07:33:11 UTC] Parameters: {":user_id":34}
+[14-Sep-2025 07:33:11 UTC] Count SQL: SELECT COUNT(*) as total FROM navigation_routes WHERE user_id = :user_id AND is_favorite = 1
+[14-Sep-2025 07:33:12 UTC] Total count result: 0
+[14-Sep-2025 07:33:12 UTC] Main SQL: SELECT * FROM navigation_routes 
+            WHERE user_id = :user_id AND is_favorite = 1 
+            ORDER BY created_at DESC 
+            LIMIT :limit OFFSET :offset
+[14-Sep-2025 07:33:12 UTC] Routes found: 0
+[14-Sep-2025 07:33:13 UTC] Navigation Routes API Request: {"timestamp":"2025-09-14 07:33:13","method":"GET","url":"\/mobile-api\/endpoints\/navigation-routes\/get_navigation_routes.php?user_id=34&limit=100&offset=0&order_by=created_at&order_direction=DESC&favorites_only=false&search=","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/140.0.0.0 Safari\/537.36 Edg\/140.0.0.0","ip":"112.204.103.23","get_params":{"user_id":"34","limit":"100","offset":"0","order_by":"created_at","order_direction":"DESC","favorites_only":"false","search":""},"post_params":[]}
+[14-Sep-2025 07:33:13 UTC] Attempting to include database configuration...
+[14-Sep-2025 07:33:13 UTC] Database configuration included. Database class exists: YES
+[14-Sep-2025 07:33:13 UTC] Query parameters - user_id: 34, limit: 100, offset: 0, order_by: created_at, order_direction: DESC, favorites_only: true, search: ''
+[14-Sep-2025 07:33:13 UTC] Attempting to create Database instance...
+[14-Sep-2025 07:33:13 UTC] Database connection attempt - trying hosts: localhost, localhost, 127.0.0.1
+[14-Sep-2025 07:33:13 UTC] Database config - host: localhost, dbname: u126959096_gzing_admin, username: u126959096_gzing_admin
+[14-Sep-2025 07:33:13 UTC] Attempting connection to: mysql:host=localhost;dbname=u126959096_gzing_admin;charset=utf8mb4
+[14-Sep-2025 07:33:13 UTC] SUCCESS: Connected to database on host: localhost
+[14-Sep-2025 07:33:13 UTC] Database instance created successfully
+[14-Sep-2025 07:33:13 UTC] Attempting to get database connection...
+[14-Sep-2025 07:33:13 UTC] Database connection result: SUCCESS
+[14-Sep-2025 07:33:13 UTC] WHERE clause: user_id = :user_id AND is_favorite = 1
+[14-Sep-2025 07:33:13 UTC] Parameters: {":user_id":34}
+[14-Sep-2025 07:33:13 UTC] Count SQL: SELECT COUNT(*) as total FROM navigation_routes WHERE user_id = :user_id AND is_favorite = 1
+[14-Sep-2025 07:33:13 UTC] Total count result: 0
+[14-Sep-2025 07:33:13 UTC] Main SQL: SELECT * FROM navigation_routes 
+            WHERE user_id = :user_id AND is_favorite = 1 
+            ORDER BY created_at DESC 
+            LIMIT :limit OFFSET :offset
+[14-Sep-2025 07:33:13 UTC] Routes found: 0
+[14-Sep-2025 07:34:17 UTC] Navigation Routes API Request: {"timestamp":"2025-09-14 07:34:17","method":"GET","url":"\/mobile-api\/endpoints\/navigation-routes\/get_navigation_routes.php?user_id=34&limit=100&offset=0&order_by=created_at&order_direction=DESC&favorites_only=false&search=","user_agent":"okhttp\/4.12.0","ip":"112.204.103.23","get_params":{"user_id":"34","limit":"100","offset":"0","order_by":"created_at","order_direction":"DESC","favorites_only":"false","search":""},"post_params":[]}
+[14-Sep-2025 07:34:17 UTC] Attempting to include database configuration...
+[14-Sep-2025 07:34:17 UTC] Database configuration included. Database class exists: YES
+[14-Sep-2025 07:34:17 UTC] Query parameters - user_id: 34, limit: 100, offset: 0, order_by: created_at, order_direction: DESC, favorites_only: true, search: ''
+[14-Sep-2025 07:34:17 UTC] Attempting to create Database instance...
+[14-Sep-2025 07:34:17 UTC] Database connection attempt - trying hosts: localhost, localhost, 127.0.0.1
+[14-Sep-2025 07:34:17 UTC] Database config - host: localhost, dbname: u126959096_gzing_admin, username: u126959096_gzing_admin
+[14-Sep-2025 07:34:17 UTC] Attempting connection to: mysql:host=localhost;dbname=u126959096_gzing_admin;charset=utf8mb4
+[14-Sep-2025 07:34:17 UTC] SUCCESS: Connected to database on host: localhost
+[14-Sep-2025 07:34:17 UTC] Database instance created successfully
+[14-Sep-2025 07:34:17 UTC] Attempting to get database connection...
+[14-Sep-2025 07:34:17 UTC] Database connection result: SUCCESS
+[14-Sep-2025 07:34:17 UTC] WHERE clause: user_id = :user_id AND is_favorite = 1
+[14-Sep-2025 07:34:17 UTC] Parameters: {":user_id":34}
+[14-Sep-2025 07:34:17 UTC] Count SQL: SELECT COUNT(*) as total FROM navigation_routes WHERE user_id = :user_id AND is_favorite = 1
+[14-Sep-2025 07:34:17 UTC] Total count result: 0
+[14-Sep-2025 07:34:17 UTC] Main SQL: SELECT * FROM navigation_routes 
+            WHERE user_id = :user_id AND is_favorite = 1 
+            ORDER BY created_at DESC 
+            LIMIT :limit OFFSET :offset
+[14-Sep-2025 07:34:17 UTC] Routes found: 0
+[14-Sep-2025 07:35:48 UTC] Navigation Routes API Request: {"timestamp":"2025-09-14 07:35:48","method":"GET","url":"\/mobile-api\/endpoints\/navigation-routes\/get_navigation_routes.php?user_id=34&limit=100&offset=0&order_by=created_at&order_direction=DESC&favorites_only=false&search=","user_agent":"okhttp\/4.12.0","ip":"112.204.103.23","get_params":{"user_id":"34","limit":"100","offset":"0","order_by":"created_at","order_direction":"DESC","favorites_only":"false","search":""},"post_params":[]}
+[14-Sep-2025 07:35:48 UTC] Attempting to include database configuration...
+[14-Sep-2025 07:35:48 UTC] Database configuration included. Database class exists: YES
+[14-Sep-2025 07:35:48 UTC] Query parameters - user_id: 34, limit: 100, offset: 0, order_by: created_at, order_direction: DESC, favorites_only: true, search: ''
+[14-Sep-2025 07:35:48 UTC] Attempting to create Database instance...
+[14-Sep-2025 07:35:48 UTC] Database connection attempt - trying hosts: localhost, localhost, 127.0.0.1
+[14-Sep-2025 07:35:48 UTC] Database config - host: localhost, dbname: u126959096_gzing_admin, username: u126959096_gzing_admin
+[14-Sep-2025 07:35:48 UTC] Attempting connection to: mysql:host=localhost;dbname=u126959096_gzing_admin;charset=utf8mb4
+[14-Sep-2025 07:35:48 UTC] SUCCESS: Connected to database on host: localhost
+[14-Sep-2025 07:35:48 UTC] Database instance created successfully
+[14-Sep-2025 07:35:48 UTC] Attempting to get database connection...
+[14-Sep-2025 07:35:48 UTC] Database connection result: SUCCESS
+[14-Sep-2025 07:35:48 UTC] WHERE clause: user_id = :user_id AND is_favorite = 1
+[14-Sep-2025 07:35:48 UTC] Parameters: {":user_id":34}
+[14-Sep-2025 07:35:48 UTC] Count SQL: SELECT COUNT(*) as total FROM navigation_routes WHERE user_id = :user_id AND is_favorite = 1
+[14-Sep-2025 07:35:48 UTC] Total count result: 0
+[14-Sep-2025 07:35:48 UTC] Main SQL: SELECT * FROM navigation_routes 
+            WHERE user_id = :user_id AND is_favorite = 1 
+            ORDER BY created_at DESC 
+            LIMIT :limit OFFSET :offset
+[14-Sep-2025 07:35:48 UTC] Routes found: 0
+[14-Sep-2025 07:35:51 UTC] Navigation Routes API Request: {"timestamp":"2025-09-14 07:35:51","method":"GET","url":"\/mobile-api\/endpoints\/navigation-routes\/get_navigation_routes.php?user_id=34&limit=100&offset=0&order_by=created_at&order_direction=DESC&favorites_only=false&search=","user_agent":"okhttp\/4.12.0","ip":"112.204.103.23","get_params":{"user_id":"34","limit":"100","offset":"0","order_by":"created_at","order_direction":"DESC","favorites_only":"false","search":""},"post_params":[]}
+[14-Sep-2025 07:35:51 UTC] Attempting to include database configuration...
+[14-Sep-2025 07:35:51 UTC] Database configuration included. Database class exists: YES
+[14-Sep-2025 07:35:51 UTC] Query parameters - user_id: 34, limit: 100, offset: 0, order_by: created_at, order_direction: DESC, favorites_only: true, search: ''
+[14-Sep-2025 07:35:51 UTC] Attempting to create Database instance...
+[14-Sep-2025 07:35:51 UTC] Database connection attempt - trying hosts: localhost, localhost, 127.0.0.1
+[14-Sep-2025 07:35:51 UTC] Database config - host: localhost, dbname: u126959096_gzing_admin, username: u126959096_gzing_admin
+[14-Sep-2025 07:35:51 UTC] Attempting connection to: mysql:host=localhost;dbname=u126959096_gzing_admin;charset=utf8mb4
+[14-Sep-2025 07:35:51 UTC] SUCCESS: Connected to database on host: localhost
+[14-Sep-2025 07:35:51 UTC] Database instance created successfully
+[14-Sep-2025 07:35:51 UTC] Attempting to get database connection...
+[14-Sep-2025 07:35:51 UTC] Database connection result: SUCCESS
+[14-Sep-2025 07:35:51 UTC] WHERE clause: user_id = :user_id AND is_favorite = 1
+[14-Sep-2025 07:35:51 UTC] Parameters: {":user_id":34}
+[14-Sep-2025 07:35:51 UTC] Count SQL: SELECT COUNT(*) as total FROM navigation_routes WHERE user_id = :user_id AND is_favorite = 1
+[14-Sep-2025 07:35:51 UTC] Total count result: 0
+[14-Sep-2025 07:35:51 UTC] Main SQL: SELECT * FROM navigation_routes 
+            WHERE user_id = :user_id AND is_favorite = 1 
+            ORDER BY created_at DESC 
+            LIMIT :limit OFFSET :offset
+[14-Sep-2025 07:35:51 UTC] Routes found: 0
+[14-Sep-2025 07:39:31 UTC] Navigation Routes API Request: {"timestamp":"2025-09-14 07:39:31","method":"GET","url":"\/mobile-api\/endpoints\/navigation-routes\/get_navigation_routes.php?user_id=34&limit=100&offset=0&order_by=created_at&order_direction=DESC&favorites_only=false&search=","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/140.0.0.0 Safari\/537.36 Edg\/140.0.0.0","ip":"112.204.103.23","get_params":{"user_id":"34","limit":"100","offset":"0","order_by":"created_at","order_direction":"DESC","favorites_only":"false","search":""},"post_params":[]}
+[14-Sep-2025 07:39:31 UTC] Attempting to include database configuration...
+[14-Sep-2025 07:39:31 UTC] Database configuration included. Database class exists: YES
+[14-Sep-2025 07:39:31 UTC] Query parameters - user_id: 34, limit: 100, offset: 0, order_by: created_at, order_direction: DESC, favorites_only: true, search: ''
+[14-Sep-2025 07:39:31 UTC] Attempting to create Database instance...
+[14-Sep-2025 07:39:31 UTC] Database connection attempt - trying hosts: localhost, localhost, 127.0.0.1
+[14-Sep-2025 07:39:31 UTC] Database config - host: localhost, dbname: u126959096_gzing_admin, username: u126959096_gzing_admin
+[14-Sep-2025 07:39:31 UTC] Attempting connection to: mysql:host=localhost;dbname=u126959096_gzing_admin;charset=utf8mb4
+[14-Sep-2025 07:39:31 UTC] SUCCESS: Connected to database on host: localhost
+[14-Sep-2025 07:39:31 UTC] Database instance created successfully
+[14-Sep-2025 07:39:31 UTC] Attempting to get database connection...
+[14-Sep-2025 07:39:31 UTC] Database connection result: SUCCESS
+[14-Sep-2025 07:39:31 UTC] WHERE clause: user_id = :user_id AND is_favorite = 1
+[14-Sep-2025 07:39:31 UTC] Parameters: {":user_id":34}
+[14-Sep-2025 07:39:31 UTC] Count SQL: SELECT COUNT(*) as total FROM navigation_routes WHERE user_id = :user_id AND is_favorite = 1
+[14-Sep-2025 07:39:31 UTC] Total count result: 0
+[14-Sep-2025 07:39:31 UTC] Main SQL: SELECT * FROM navigation_routes 
+            WHERE user_id = :user_id AND is_favorite = 1 
+            ORDER BY created_at DESC 
+            LIMIT :limit OFFSET :offset
+[14-Sep-2025 07:39:31 UTC] Routes found: 0
+[14-Sep-2025 07:39:38 UTC] Navigation Routes API Request: {"timestamp":"2025-09-14 07:39:38","method":"GET","url":"\/mobile-api\/endpoints\/navigation-routes\/get_navigation_routes.php","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/140.0.0.0 Safari\/537.36 Edg\/140.0.0.0","ip":"112.204.103.23","get_params":[],"post_params":[]}
+[14-Sep-2025 07:39:38 UTC] Attempting to include database configuration...
+[14-Sep-2025 07:39:38 UTC] Database configuration included. Database class exists: YES
+[14-Sep-2025 07:39:38 UTC] Query parameters - user_id: 34, limit: 50, offset: 0, order_by: created_at, order_direction: DESC, favorites_only: false, search: ''
+[14-Sep-2025 07:39:38 UTC] Attempting to create Database instance...
+[14-Sep-2025 07:39:38 UTC] Database connection attempt - trying hosts: localhost, localhost, 127.0.0.1
+[14-Sep-2025 07:39:38 UTC] Database config - host: localhost, dbname: u126959096_gzing_admin, username: u126959096_gzing_admin
+[14-Sep-2025 07:39:38 UTC] Attempting connection to: mysql:host=localhost;dbname=u126959096_gzing_admin;charset=utf8mb4
+[14-Sep-2025 07:39:38 UTC] SUCCESS: Connected to database on host: localhost
+[14-Sep-2025 07:39:38 UTC] Database instance created successfully
+[14-Sep-2025 07:39:38 UTC] Attempting to get database connection...
+[14-Sep-2025 07:39:38 UTC] Database connection result: SUCCESS
+[14-Sep-2025 07:39:38 UTC] WHERE clause: user_id = :user_id
+[14-Sep-2025 07:39:38 UTC] Parameters: {":user_id":34}
+[14-Sep-2025 07:39:38 UTC] Count SQL: SELECT COUNT(*) as total FROM navigation_routes WHERE user_id = :user_id
+[14-Sep-2025 07:39:38 UTC] Total count result: 6
+[14-Sep-2025 07:39:38 UTC] Main SQL: SELECT * FROM navigation_routes 
+            WHERE user_id = :user_id 
+            ORDER BY created_at DESC 
+            LIMIT :limit OFFSET :offset
+[14-Sep-2025 07:39:38 UTC] Routes found: 6
+[14-Sep-2025 07:39:54 UTC] Navigation Routes API Request: {"timestamp":"2025-09-14 07:39:54","method":"GET","url":"\/mobile-api\/endpoints\/navigation-routes\/get_navigation_routes.php","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/140.0.0.0 Safari\/537.36 Edg\/140.0.0.0","ip":"112.204.103.23","get_params":[],"post_params":[]}
+[14-Sep-2025 07:39:54 UTC] Attempting to include database configuration...
+[14-Sep-2025 07:39:54 UTC] Database configuration included. Database class exists: YES
+[14-Sep-2025 07:39:54 UTC] Query parameters - user_id: 10, limit: 50, offset: 0, order_by: created_at, order_direction: DESC, favorites_only: false, search: ''
+[14-Sep-2025 07:39:54 UTC] Attempting to create Database instance...
+[14-Sep-2025 07:39:54 UTC] Database connection attempt - trying hosts: localhost, localhost, 127.0.0.1
+[14-Sep-2025 07:39:54 UTC] Database config - host: localhost, dbname: u126959096_gzing_admin, username: u126959096_gzing_admin
+[14-Sep-2025 07:39:54 UTC] Attempting connection to: mysql:host=localhost;dbname=u126959096_gzing_admin;charset=utf8mb4
+[14-Sep-2025 07:39:54 UTC] SUCCESS: Connected to database on host: localhost
+[14-Sep-2025 07:39:54 UTC] Database instance created successfully
+[14-Sep-2025 07:39:54 UTC] Attempting to get database connection...
+[14-Sep-2025 07:39:54 UTC] Database connection result: SUCCESS
+[14-Sep-2025 07:39:54 UTC] WHERE clause: user_id = :user_id
+[14-Sep-2025 07:39:54 UTC] Parameters: {":user_id":10}
+[14-Sep-2025 07:39:54 UTC] Count SQL: SELECT COUNT(*) as total FROM navigation_routes WHERE user_id = :user_id
+[14-Sep-2025 07:39:54 UTC] Total count result: 0
+[14-Sep-2025 07:39:54 UTC] Main SQL: SELECT * FROM navigation_routes 
+            WHERE user_id = :user_id 
+            ORDER BY created_at DESC 
+            LIMIT :limit OFFSET :offset
+[14-Sep-2025 07:39:54 UTC] Routes found: 0
+[14-Sep-2025 07:40:47 UTC] Navigation Routes API Request: {"timestamp":"2025-09-14 07:40:47","method":"GET","url":"\/mobile-api\/endpoints\/navigation-routes\/get_navigation_routes.php?user_id=34&limit=100&offset=0&order_by=created_at&order_direction=DESC&favorites_only=false&search=","user_agent":"okhttp\/4.12.0","ip":"112.204.103.23","get_params":{"user_id":"34","limit":"100","offset":"0","order_by":"created_at","order_direction":"DESC","favorites_only":"false","search":""},"post_params":[]}
+[14-Sep-2025 07:40:47 UTC] Attempting to include database configuration...
+[14-Sep-2025 07:40:47 UTC] Database configuration included. Database class exists: YES
+[14-Sep-2025 07:40:47 UTC] Query parameters - user_id: 34, limit: 100, offset: 0, order_by: created_at, order_direction: DESC, favorites_only: true, search: ''
+[14-Sep-2025 07:40:47 UTC] Attempting to create Database instance...
+[14-Sep-2025 07:40:47 UTC] Database connection attempt - trying hosts: localhost, localhost, 127.0.0.1
+[14-Sep-2025 07:40:47 UTC] Database config - host: localhost, dbname: u126959096_gzing_admin, username: u126959096_gzing_admin
+[14-Sep-2025 07:40:47 UTC] Attempting connection to: mysql:host=localhost;dbname=u126959096_gzing_admin;charset=utf8mb4
+[14-Sep-2025 07:40:47 UTC] SUCCESS: Connected to database on host: localhost
+[14-Sep-2025 07:40:47 UTC] Database instance created successfully
+[14-Sep-2025 07:40:47 UTC] Attempting to get database connection...
+[14-Sep-2025 07:40:47 UTC] Database connection result: SUCCESS
+[14-Sep-2025 07:40:47 UTC] WHERE clause: user_id = :user_id AND is_favorite = 1
+[14-Sep-2025 07:40:47 UTC] Parameters: {":user_id":34}
+[14-Sep-2025 07:40:47 UTC] Count SQL: SELECT COUNT(*) as total FROM navigation_routes WHERE user_id = :user_id AND is_favorite = 1
+[14-Sep-2025 07:40:47 UTC] Total count result: 0
+[14-Sep-2025 07:40:47 UTC] Main SQL: SELECT * FROM navigation_routes 
+            WHERE user_id = :user_id AND is_favorite = 1 
+            ORDER BY created_at DESC 
+            LIMIT :limit OFFSET :offset
+[14-Sep-2025 07:40:47 UTC] Routes found: 0
+[14-Sep-2025 07:40:59 UTC] Navigation Routes API Request: {"timestamp":"2025-09-14 07:40:59","method":"GET","url":"\/mobile-api\/endpoints\/navigation-routes\/get_navigation_routes.php?user_id=34&limit=100&offset=0&order_by=created_at&order_direction=DESC&favorites_only=false&search=","user_agent":"okhttp\/4.12.0","ip":"112.204.103.23","get_params":{"user_id":"34","limit":"100","offset":"0","order_by":"created_at","order_direction":"DESC","favorites_only":"false","search":""},"post_params":[]}
+[14-Sep-2025 07:40:59 UTC] Attempting to include database configuration...
+[14-Sep-2025 07:40:59 UTC] Database configuration included. Database class exists: YES
+[14-Sep-2025 07:40:59 UTC] Query parameters - user_id: 34, limit: 100, offset: 0, order_by: created_at, order_direction: DESC, favorites_only: true, search: ''
+[14-Sep-2025 07:40:59 UTC] Attempting to create Database instance...
+[14-Sep-2025 07:40:59 UTC] Database connection attempt - trying hosts: localhost, localhost, 127.0.0.1
+[14-Sep-2025 07:40:59 UTC] Database config - host: localhost, dbname: u126959096_gzing_admin, username: u126959096_gzing_admin
+[14-Sep-2025 07:40:59 UTC] Attempting connection to: mysql:host=localhost;dbname=u126959096_gzing_admin;charset=utf8mb4
+[14-Sep-2025 07:40:59 UTC] SUCCESS: Connected to database on host: localhost
+[14-Sep-2025 07:40:59 UTC] Database instance created successfully
+[14-Sep-2025 07:40:59 UTC] Attempting to get database connection...
+[14-Sep-2025 07:40:59 UTC] Database connection result: SUCCESS
+[14-Sep-2025 07:40:59 UTC] WHERE clause: user_id = :user_id AND is_favorite = 1
+[14-Sep-2025 07:40:59 UTC] Parameters: {":user_id":34}
+[14-Sep-2025 07:40:59 UTC] Count SQL: SELECT COUNT(*) as total FROM navigation_routes WHERE user_id = :user_id AND is_favorite = 1
+[14-Sep-2025 07:40:59 UTC] Total count result: 0
+[14-Sep-2025 07:40:59 UTC] Main SQL: SELECT * FROM navigation_routes 
+            WHERE user_id = :user_id AND is_favorite = 1 
+            ORDER BY created_at DESC 
+            LIMIT :limit OFFSET :offset
+[14-Sep-2025 07:40:59 UTC] Routes found: 0
+[14-Sep-2025 07:41:02 UTC] Navigation Routes API Request: {"timestamp":"2025-09-14 07:41:02","method":"GET","url":"\/mobile-api\/endpoints\/navigation-routes\/get_navigation_routes.php?user_id=34&limit=100&offset=0&order_by=created_at&order_direction=DESC&favorites_only=false&search=","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/140.0.0.0 Safari\/537.36 Edg\/140.0.0.0","ip":"112.204.103.23","get_params":{"user_id":"34","limit":"100","offset":"0","order_by":"created_at","order_direction":"DESC","favorites_only":"false","search":""},"post_params":[]}
+[14-Sep-2025 07:41:02 UTC] Attempting to include database configuration...
+[14-Sep-2025 07:41:02 UTC] Database configuration included. Database class exists: YES
+[14-Sep-2025 07:41:02 UTC] Query parameters - user_id: 34, limit: 100, offset: 0, order_by: created_at, order_direction: DESC, favorites_only: true, search: ''
+[14-Sep-2025 07:41:02 UTC] Attempting to create Database instance...
+[14-Sep-2025 07:41:02 UTC] Database connection attempt - trying hosts: localhost, localhost, 127.0.0.1
+[14-Sep-2025 07:41:02 UTC] Database config - host: localhost, dbname: u126959096_gzing_admin, username: u126959096_gzing_admin
+[14-Sep-2025 07:41:02 UTC] Attempting connection to: mysql:host=localhost;dbname=u126959096_gzing_admin;charset=utf8mb4
+[14-Sep-2025 07:41:02 UTC] SUCCESS: Connected to database on host: localhost
+[14-Sep-2025 07:41:02 UTC] Database instance created successfully
+[14-Sep-2025 07:41:02 UTC] Attempting to get database connection...
+[14-Sep-2025 07:41:02 UTC] Database connection result: SUCCESS
+[14-Sep-2025 07:41:02 UTC] WHERE clause: user_id = :user_id AND is_favorite = 1
+[14-Sep-2025 07:41:02 UTC] Parameters: {":user_id":34}
+[14-Sep-2025 07:41:02 UTC] Count SQL: SELECT COUNT(*) as total FROM navigation_routes WHERE user_id = :user_id AND is_favorite = 1
+[14-Sep-2025 07:41:02 UTC] Total count result: 0
+[14-Sep-2025 07:41:02 UTC] Main SQL: SELECT * FROM navigation_routes 
+            WHERE user_id = :user_id AND is_favorite = 1 
+            ORDER BY created_at DESC 
+            LIMIT :limit OFFSET :offset
+[14-Sep-2025 07:41:02 UTC] Routes found: 0
+[14-Sep-2025 07:41:09 UTC] Navigation Routes API Request: {"timestamp":"2025-09-14 07:41:09","method":"GET","url":"\/mobile-api\/endpoints\/navigation-routes\/get_navigation_routes.php?user_id=34","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/140.0.0.0 Safari\/537.36 Edg\/140.0.0.0","ip":"112.204.103.23","get_params":{"user_id":"34"},"post_params":[]}
+[14-Sep-2025 07:41:09 UTC] Attempting to include database configuration...
+[14-Sep-2025 07:41:09 UTC] Database configuration included. Database class exists: YES
+[14-Sep-2025 07:41:09 UTC] Query parameters - user_id: 34, limit: 50, offset: 0, order_by: created_at, order_direction: DESC, favorites_only: false, search: ''
+[14-Sep-2025 07:41:09 UTC] Attempting to create Database instance...
+[14-Sep-2025 07:41:09 UTC] Database connection attempt - trying hosts: localhost, localhost, 127.0.0.1
+[14-Sep-2025 07:41:09 UTC] Database config - host: localhost, dbname: u126959096_gzing_admin, username: u126959096_gzing_admin
+[14-Sep-2025 07:41:09 UTC] Attempting connection to: mysql:host=localhost;dbname=u126959096_gzing_admin;charset=utf8mb4
+[14-Sep-2025 07:41:09 UTC] SUCCESS: Connected to database on host: localhost
+[14-Sep-2025 07:41:09 UTC] Database instance created successfully
+[14-Sep-2025 07:41:09 UTC] Attempting to get database connection...
+[14-Sep-2025 07:41:09 UTC] Database connection result: SUCCESS
+[14-Sep-2025 07:41:09 UTC] WHERE clause: user_id = :user_id
+[14-Sep-2025 07:41:09 UTC] Parameters: {":user_id":34}
+[14-Sep-2025 07:41:09 UTC] Count SQL: SELECT COUNT(*) as total FROM navigation_routes WHERE user_id = :user_id
+[14-Sep-2025 07:41:09 UTC] Total count result: 6
+[14-Sep-2025 07:41:09 UTC] Main SQL: SELECT * FROM navigation_routes 
+            WHERE user_id = :user_id 
+            ORDER BY created_at DESC 
+            LIMIT :limit OFFSET :offset
+[14-Sep-2025 07:41:09 UTC] Routes found: 6
+[14-Sep-2025 07:42:01 UTC] Navigation Routes API Request: {"timestamp":"2025-09-14 07:42:01","method":"GET","url":"\/mobile-api\/endpoints\/navigation-routes\/get_navigation_routes.php?user_id=34","user_agent":"got (https:\/\/github.com\/sindresorhus\/got)","ip":"13.220.238.56","get_params":{"user_id":"34"},"post_params":[]}
+[14-Sep-2025 07:42:01 UTC] Attempting to include database configuration...
+[14-Sep-2025 07:42:01 UTC] Database configuration included. Database class exists: YES
+[14-Sep-2025 07:42:01 UTC] Query parameters - user_id: 34, limit: 50, offset: 0, order_by: created_at, order_direction: DESC, favorites_only: false, search: ''
+[14-Sep-2025 07:42:01 UTC] Attempting to create Database instance...
+[14-Sep-2025 07:42:01 UTC] Database connection attempt - trying hosts: localhost, localhost, 127.0.0.1
+[14-Sep-2025 07:42:01 UTC] Database config - host: localhost, dbname: u126959096_gzing_admin, username: u126959096_gzing_admin
+[14-Sep-2025 07:42:01 UTC] Attempting connection to: mysql:host=localhost;dbname=u126959096_gzing_admin;charset=utf8mb4
+[14-Sep-2025 07:42:01 UTC] SUCCESS: Connected to database on host: localhost
+[14-Sep-2025 07:42:01 UTC] Database instance created successfully
+[14-Sep-2025 07:42:01 UTC] Attempting to get database connection...
+[14-Sep-2025 07:42:01 UTC] Database connection result: SUCCESS
+[14-Sep-2025 07:42:01 UTC] WHERE clause: user_id = :user_id
+[14-Sep-2025 07:42:01 UTC] Parameters: {":user_id":34}
+[14-Sep-2025 07:42:01 UTC] Count SQL: SELECT COUNT(*) as total FROM navigation_routes WHERE user_id = :user_id
+[14-Sep-2025 07:42:01 UTC] Total count result: 6
+[14-Sep-2025 07:42:01 UTC] Main SQL: SELECT * FROM navigation_routes 
+            WHERE user_id = :user_id 
+            ORDER BY created_at DESC 
+            LIMIT :limit OFFSET :offset
+[14-Sep-2025 07:42:01 UTC] Routes found: 6
+[14-Sep-2025 07:44:03 UTC] Navigation Routes API Request: {"timestamp":"2025-09-14 07:44:03","method":"GET","url":"\/mobile-api\/endpoints\/navigation-routes\/get_navigation_routes.php?user_id=34&limit=100&offset=0&order_by=created_at&order_direction=DESC&search=","user_agent":"okhttp\/4.12.0","ip":"112.204.103.23","get_params":{"user_id":"34","limit":"100","offset":"0","order_by":"created_at","order_direction":"DESC","search":""},"post_params":[]}
+[14-Sep-2025 07:44:03 UTC] Attempting to include database configuration...
+[14-Sep-2025 07:44:03 UTC] Database configuration included. Database class exists: YES
+[14-Sep-2025 07:44:03 UTC] Query parameters - user_id: 34, limit: 100, offset: 0, order_by: created_at, order_direction: DESC, favorites_only: false, search: ''
+[14-Sep-2025 07:44:03 UTC] Attempting to create Database instance...
+[14-Sep-2025 07:44:03 UTC] Database connection attempt - trying hosts: localhost, localhost, 127.0.0.1
+[14-Sep-2025 07:44:03 UTC] Database config - host: localhost, dbname: u126959096_gzing_admin, username: u126959096_gzing_admin
+[14-Sep-2025 07:44:03 UTC] Attempting connection to: mysql:host=localhost;dbname=u126959096_gzing_admin;charset=utf8mb4
+[14-Sep-2025 07:44:03 UTC] SUCCESS: Connected to database on host: localhost
+[14-Sep-2025 07:44:03 UTC] Database instance created successfully
+[14-Sep-2025 07:44:03 UTC] Attempting to get database connection...
+[14-Sep-2025 07:44:03 UTC] Database connection result: SUCCESS
+[14-Sep-2025 07:44:03 UTC] WHERE clause: user_id = :user_id
+[14-Sep-2025 07:44:03 UTC] Parameters: {":user_id":34}
+[14-Sep-2025 07:44:03 UTC] Count SQL: SELECT COUNT(*) as total FROM navigation_routes WHERE user_id = :user_id
+[14-Sep-2025 07:44:03 UTC] Total count result: 6
+[14-Sep-2025 07:44:03 UTC] Main SQL: SELECT * FROM navigation_routes 
+            WHERE user_id = :user_id 
+            ORDER BY created_at DESC 
+            LIMIT :limit OFFSET :offset
+[14-Sep-2025 07:44:03 UTC] Routes found: 6
+[14-Sep-2025 07:55:39 UTC] Navigation Routes API Request: {"timestamp":"2025-09-14 07:55:39","method":"GET","url":"\/mobile-api\/endpoints\/navigation-routes\/get_navigation_routes.php?user_id=34&limit=100&offset=0&order_by=created_at&order_direction=DESC&search=","user_agent":"okhttp\/4.12.0","ip":"112.204.103.23","get_params":{"user_id":"34","limit":"100","offset":"0","order_by":"created_at","order_direction":"DESC","search":""},"post_params":[]}
+[14-Sep-2025 07:55:39 UTC] Attempting to include database configuration...
+[14-Sep-2025 07:55:39 UTC] Database configuration included. Database class exists: YES
+[14-Sep-2025 07:55:39 UTC] Query parameters - user_id: 34, limit: 100, offset: 0, order_by: created_at, order_direction: DESC, favorites_only: false, search: ''
+[14-Sep-2025 07:55:39 UTC] Attempting to create Database instance...
+[14-Sep-2025 07:55:39 UTC] Database connection attempt - trying hosts: localhost, localhost, 127.0.0.1
+[14-Sep-2025 07:55:39 UTC] Database config - host: localhost, dbname: u126959096_gzing_admin, username: u126959096_gzing_admin
+[14-Sep-2025 07:55:39 UTC] Attempting connection to: mysql:host=localhost;dbname=u126959096_gzing_admin;charset=utf8mb4
+[14-Sep-2025 07:55:39 UTC] SUCCESS: Connected to database on host: localhost
+[14-Sep-2025 07:55:39 UTC] Database instance created successfully
+[14-Sep-2025 07:55:39 UTC] Attempting to get database connection...
+[14-Sep-2025 07:55:39 UTC] Database connection result: SUCCESS
+[14-Sep-2025 07:55:39 UTC] WHERE clause: user_id = :user_id
+[14-Sep-2025 07:55:39 UTC] Parameters: {":user_id":34}
+[14-Sep-2025 07:55:39 UTC] Count SQL: SELECT COUNT(*) as total FROM navigation_routes WHERE user_id = :user_id
+[14-Sep-2025 07:55:39 UTC] Total count result: 6
+[14-Sep-2025 07:55:39 UTC] Main SQL: SELECT * FROM navigation_routes 
+            WHERE user_id = :user_id 
+            ORDER BY created_at DESC 
+            LIMIT :limit OFFSET :offset
+[14-Sep-2025 07:55:39 UTC] Routes found: 6
+[14-Sep-2025 07:56:16 UTC] Navigation Routes API Request: {"timestamp":"2025-09-14 07:56:16","method":"GET","url":"\/mobile-api\/endpoints\/navigation-routes\/get_navigation_routes.php?user_id=34&limit=100&offset=0&order_by=created_at&order_direction=DESC&search=","user_agent":"okhttp\/4.12.0","ip":"112.204.103.23","get_params":{"user_id":"34","limit":"100","offset":"0","order_by":"created_at","order_direction":"DESC","search":""},"post_params":[]}
+[14-Sep-2025 07:56:16 UTC] Attempting to include database configuration...
+[14-Sep-2025 07:56:16 UTC] Database configuration included. Database class exists: YES
+[14-Sep-2025 07:56:16 UTC] Query parameters - user_id: 34, limit: 100, offset: 0, order_by: created_at, order_direction: DESC, favorites_only: false, search: ''
+[14-Sep-2025 07:56:16 UTC] Attempting to create Database instance...
+[14-Sep-2025 07:56:16 UTC] Database connection attempt - trying hosts: localhost, localhost, 127.0.0.1
+[14-Sep-2025 07:56:16 UTC] Database config - host: localhost, dbname: u126959096_gzing_admin, username: u126959096_gzing_admin
+[14-Sep-2025 07:56:16 UTC] Attempting connection to: mysql:host=localhost;dbname=u126959096_gzing_admin;charset=utf8mb4
+[14-Sep-2025 07:56:17 UTC] SUCCESS: Connected to database on host: localhost
+[14-Sep-2025 07:56:17 UTC] Database instance created successfully
+[14-Sep-2025 07:56:17 UTC] Attempting to get database connection...
+[14-Sep-2025 07:56:17 UTC] Database connection result: SUCCESS
+[14-Sep-2025 07:56:17 UTC] WHERE clause: user_id = :user_id
+[14-Sep-2025 07:56:17 UTC] Parameters: {":user_id":34}
+[14-Sep-2025 07:56:17 UTC] Count SQL: SELECT COUNT(*) as total FROM navigation_routes WHERE user_id = :user_id
+[14-Sep-2025 07:56:17 UTC] Total count result: 7
+[14-Sep-2025 07:56:17 UTC] Main SQL: SELECT * FROM navigation_routes 
+            WHERE user_id = :user_id 
+            ORDER BY created_at DESC 
+            LIMIT :limit OFFSET :offset
+[14-Sep-2025 07:56:17 UTC] Routes found: 7
+[14-Sep-2025 07:56:41 UTC] Navigation Routes API Request: {"timestamp":"2025-09-14 07:56:41","method":"GET","url":"\/mobile-api\/endpoints\/navigation-routes\/get_navigation_routes.php?user_id=34&limit=100&offset=0&order_by=created_at&order_direction=DESC&search=","user_agent":"okhttp\/4.12.0","ip":"112.204.103.23","get_params":{"user_id":"34","limit":"100","offset":"0","order_by":"created_at","order_direction":"DESC","search":""},"post_params":[]}
+[14-Sep-2025 07:56:41 UTC] Attempting to include database configuration...
+[14-Sep-2025 07:56:41 UTC] Database configuration included. Database class exists: YES
+[14-Sep-2025 07:56:41 UTC] Query parameters - user_id: 34, limit: 100, offset: 0, order_by: created_at, order_direction: DESC, favorites_only: false, search: ''
+[14-Sep-2025 07:56:41 UTC] Attempting to create Database instance...
+[14-Sep-2025 07:56:41 UTC] Database connection attempt - trying hosts: localhost, localhost, 127.0.0.1
+[14-Sep-2025 07:56:41 UTC] Database config - host: localhost, dbname: u126959096_gzing_admin, username: u126959096_gzing_admin
+[14-Sep-2025 07:56:41 UTC] Attempting connection to: mysql:host=localhost;dbname=u126959096_gzing_admin;charset=utf8mb4
+[14-Sep-2025 07:56:41 UTC] SUCCESS: Connected to database on host: localhost
+[14-Sep-2025 07:56:41 UTC] Database instance created successfully
+[14-Sep-2025 07:56:41 UTC] Attempting to get database connection...
+[14-Sep-2025 07:56:41 UTC] Database connection result: SUCCESS
+[14-Sep-2025 07:56:41 UTC] WHERE clause: user_id = :user_id
+[14-Sep-2025 07:56:41 UTC] Parameters: {":user_id":34}
+[14-Sep-2025 07:56:41 UTC] Count SQL: SELECT COUNT(*) as total FROM navigation_routes WHERE user_id = :user_id
+[14-Sep-2025 07:56:42 UTC] Total count result: 8
+[14-Sep-2025 07:56:42 UTC] Main SQL: SELECT * FROM navigation_routes 
+            WHERE user_id = :user_id 
+            ORDER BY created_at DESC 
+            LIMIT :limit OFFSET :offset
+[14-Sep-2025 07:56:42 UTC] Routes found: 8
+[14-Sep-2025 07:57:41 UTC] Navigation Routes API Request: {"timestamp":"2025-09-14 07:57:41","method":"GET","url":"\/mobile-api\/endpoints\/navigation-routes\/get_navigation_routes.php?user_id=34&limit=100&offset=0&order_by=created_at&order_direction=DESC&search=","user_agent":"okhttp\/4.12.0","ip":"112.204.103.23","get_params":{"user_id":"34","limit":"100","offset":"0","order_by":"created_at","order_direction":"DESC","search":""},"post_params":[]}
+[14-Sep-2025 07:57:41 UTC] Attempting to include database configuration...
+[14-Sep-2025 07:57:41 UTC] Database configuration included. Database class exists: YES
+[14-Sep-2025 07:57:41 UTC] Query parameters - user_id: 34, limit: 100, offset: 0, order_by: created_at, order_direction: DESC, favorites_only: false, search: ''
+[14-Sep-2025 07:57:41 UTC] Attempting to create Database instance...
+[14-Sep-2025 07:57:41 UTC] Database connection attempt - trying hosts: localhost, localhost, 127.0.0.1
+[14-Sep-2025 07:57:41 UTC] Database config - host: localhost, dbname: u126959096_gzing_admin, username: u126959096_gzing_admin
+[14-Sep-2025 07:57:41 UTC] Attempting connection to: mysql:host=localhost;dbname=u126959096_gzing_admin;charset=utf8mb4
+[14-Sep-2025 07:57:41 UTC] SUCCESS: Connected to database on host: localhost
+[14-Sep-2025 07:57:41 UTC] Database instance created successfully
+[14-Sep-2025 07:57:41 UTC] Attempting to get database connection...
+[14-Sep-2025 07:57:41 UTC] Database connection result: SUCCESS
+[14-Sep-2025 07:57:41 UTC] WHERE clause: user_id = :user_id
+[14-Sep-2025 07:57:41 UTC] Parameters: {":user_id":34}
+[14-Sep-2025 07:57:41 UTC] Count SQL: SELECT COUNT(*) as total FROM navigation_routes WHERE user_id = :user_id
+[14-Sep-2025 07:57:41 UTC] Total count result: 8
+[14-Sep-2025 07:57:41 UTC] Main SQL: SELECT * FROM navigation_routes 
+            WHERE user_id = :user_id 
+            ORDER BY created_at DESC 
+            LIMIT :limit OFFSET :offset
+[14-Sep-2025 07:57:41 UTC] Routes found: 8
+[14-Sep-2025 08:01:45 UTC] Navigation Routes API Request: {"timestamp":"2025-09-14 08:01:45","method":"GET","url":"\/mobile-api\/endpoints\/navigation-routes\/get_navigation_routes.php?user_id=35&limit=100&offset=0&order_by=created_at&order_direction=DESC&search=","user_agent":"okhttp\/4.12.0","ip":"112.204.103.23","get_params":{"user_id":"35","limit":"100","offset":"0","order_by":"created_at","order_direction":"DESC","search":""},"post_params":[]}
+[14-Sep-2025 08:01:45 UTC] Attempting to include database configuration...
+[14-Sep-2025 08:01:45 UTC] Database configuration included. Database class exists: YES
+[14-Sep-2025 08:01:45 UTC] Query parameters - user_id: 35, limit: 100, offset: 0, order_by: created_at, order_direction: DESC, favorites_only: false, search: ''
+[14-Sep-2025 08:01:45 UTC] Attempting to create Database instance...
+[14-Sep-2025 08:01:45 UTC] Database connection attempt - trying hosts: localhost, localhost, 127.0.0.1
+[14-Sep-2025 08:01:45 UTC] Database config - host: localhost, dbname: u126959096_gzing_admin, username: u126959096_gzing_admin
+[14-Sep-2025 08:01:45 UTC] Attempting connection to: mysql:host=localhost;dbname=u126959096_gzing_admin;charset=utf8mb4
+[14-Sep-2025 08:01:45 UTC] SUCCESS: Connected to database on host: localhost
+[14-Sep-2025 08:01:45 UTC] Database instance created successfully
+[14-Sep-2025 08:01:45 UTC] Attempting to get database connection...
+[14-Sep-2025 08:01:45 UTC] Database connection result: SUCCESS
+[14-Sep-2025 08:01:45 UTC] WHERE clause: user_id = :user_id
+[14-Sep-2025 08:01:45 UTC] Parameters: {":user_id":35}
+[14-Sep-2025 08:01:45 UTC] Count SQL: SELECT COUNT(*) as total FROM navigation_routes WHERE user_id = :user_id
+[14-Sep-2025 08:01:45 UTC] Total count result: 0
+[14-Sep-2025 08:01:45 UTC] Main SQL: SELECT * FROM navigation_routes 
+            WHERE user_id = :user_id 
+            ORDER BY created_at DESC 
+            LIMIT :limit OFFSET :offset
+[14-Sep-2025 08:01:45 UTC] Routes found: 0
+[14-Sep-2025 08:02:04 UTC] Navigation Routes API Request: {"timestamp":"2025-09-14 08:02:04","method":"GET","url":"\/mobile-api\/endpoints\/navigation-routes\/get_navigation_routes.php?user_id=35&limit=100&offset=0&order_by=created_at&order_direction=DESC&search=","user_agent":"okhttp\/4.12.0","ip":"112.204.103.23","get_params":{"user_id":"35","limit":"100","offset":"0","order_by":"created_at","order_direction":"DESC","search":""},"post_params":[]}
+[14-Sep-2025 08:02:04 UTC] Attempting to include database configuration...
+[14-Sep-2025 08:02:04 UTC] Database configuration included. Database class exists: YES
+[14-Sep-2025 08:02:04 UTC] Query parameters - user_id: 35, limit: 100, offset: 0, order_by: created_at, order_direction: DESC, favorites_only: false, search: ''
+[14-Sep-2025 08:02:04 UTC] Attempting to create Database instance...
+[14-Sep-2025 08:02:04 UTC] Database connection attempt - trying hosts: localhost, localhost, 127.0.0.1
+[14-Sep-2025 08:02:04 UTC] Database config - host: localhost, dbname: u126959096_gzing_admin, username: u126959096_gzing_admin
+[14-Sep-2025 08:02:04 UTC] Attempting connection to: mysql:host=localhost;dbname=u126959096_gzing_admin;charset=utf8mb4
+[14-Sep-2025 08:02:04 UTC] SUCCESS: Connected to database on host: localhost
+[14-Sep-2025 08:02:04 UTC] Database instance created successfully
+[14-Sep-2025 08:02:04 UTC] Attempting to get database connection...
+[14-Sep-2025 08:02:04 UTC] Database connection result: SUCCESS
+[14-Sep-2025 08:02:04 UTC] WHERE clause: user_id = :user_id
+[14-Sep-2025 08:02:04 UTC] Parameters: {":user_id":35}
+[14-Sep-2025 08:02:04 UTC] Count SQL: SELECT COUNT(*) as total FROM navigation_routes WHERE user_id = :user_id
+[14-Sep-2025 08:02:04 UTC] Total count result: 0
+[14-Sep-2025 08:02:04 UTC] Main SQL: SELECT * FROM navigation_routes 
+            WHERE user_id = :user_id 
+            ORDER BY created_at DESC 
+            LIMIT :limit OFFSET :offset
+[14-Sep-2025 08:02:04 UTC] Routes found: 0
+[14-Sep-2025 08:27:26 UTC] Navigation Routes API Request: {"timestamp":"2025-09-14 08:27:26","method":"GET","url":"\/mobile-api\/endpoints\/navigation-routes\/get_navigation_routes.php?user_id=35&limit=100&offset=0&order_by=created_at&order_direction=DESC&search=","user_agent":"okhttp\/4.12.0","ip":"112.204.103.23","get_params":{"user_id":"35","limit":"100","offset":"0","order_by":"created_at","order_direction":"DESC","search":""},"post_params":[]}
+[14-Sep-2025 08:27:26 UTC] Attempting to include database configuration...
+[14-Sep-2025 08:27:26 UTC] Database configuration included. Database class exists: YES
+[14-Sep-2025 08:27:26 UTC] Query parameters - user_id: 35, limit: 100, offset: 0, order_by: created_at, order_direction: DESC, favorites_only: false, search: ''
+[14-Sep-2025 08:27:26 UTC] Attempting to create Database instance...
+[14-Sep-2025 08:27:26 UTC] Database connection attempt - trying hosts: localhost, localhost, 127.0.0.1
+[14-Sep-2025 08:27:26 UTC] Database config - host: localhost, dbname: u126959096_gzing_admin, username: u126959096_gzing_admin
+[14-Sep-2025 08:27:26 UTC] Attempting connection to: mysql:host=localhost;dbname=u126959096_gzing_admin;charset=utf8mb4
+[14-Sep-2025 08:27:26 UTC] SUCCESS: Connected to database on host: localhost
+[14-Sep-2025 08:27:26 UTC] Database instance created successfully
+[14-Sep-2025 08:27:26 UTC] Attempting to get database connection...
+[14-Sep-2025 08:27:26 UTC] Database connection result: SUCCESS
+[14-Sep-2025 08:27:26 UTC] WHERE clause: user_id = :user_id
+[14-Sep-2025 08:27:26 UTC] Parameters: {":user_id":35}
+[14-Sep-2025 08:27:26 UTC] Count SQL: SELECT COUNT(*) as total FROM navigation_routes WHERE user_id = :user_id
+[14-Sep-2025 08:27:26 UTC] Total count result: 0
+[14-Sep-2025 08:27:26 UTC] Main SQL: SELECT * FROM navigation_routes 
+            WHERE user_id = :user_id 
+            ORDER BY created_at DESC 
+            LIMIT :limit OFFSET :offset
+[14-Sep-2025 08:27:26 UTC] Routes found: 0
+[14-Sep-2025 08:44:04 UTC] Navigation Routes API Request: {"timestamp":"2025-09-14 08:44:04","method":"GET","url":"\/mobile-api\/endpoints\/navigation-routes\/get_navigation_routes.php?user_id=35&limit=100&offset=0&order_by=created_at&order_direction=DESC&search=","user_agent":"okhttp\/4.12.0","ip":"112.204.103.23","get_params":{"user_id":"35","limit":"100","offset":"0","order_by":"created_at","order_direction":"DESC","search":""},"post_params":[]}
+[14-Sep-2025 08:44:04 UTC] Attempting to include database configuration...
+[14-Sep-2025 08:44:04 UTC] Database configuration included. Database class exists: YES
+[14-Sep-2025 08:44:04 UTC] Query parameters - user_id: 35, limit: 100, offset: 0, order_by: created_at, order_direction: DESC, favorites_only: false, search: ''
+[14-Sep-2025 08:44:04 UTC] Attempting to create Database instance...
+[14-Sep-2025 08:44:04 UTC] Database connection attempt - trying hosts: localhost, localhost, 127.0.0.1
+[14-Sep-2025 08:44:04 UTC] Database config - host: localhost, dbname: u126959096_gzing_admin, username: u126959096_gzing_admin
+[14-Sep-2025 08:44:04 UTC] Attempting connection to: mysql:host=localhost;dbname=u126959096_gzing_admin;charset=utf8mb4
+[14-Sep-2025 08:44:04 UTC] SUCCESS: Connected to database on host: localhost
+[14-Sep-2025 08:44:04 UTC] Database instance created successfully
+[14-Sep-2025 08:44:04 UTC] Attempting to get database connection...
+[14-Sep-2025 08:44:04 UTC] Database connection result: SUCCESS
+[14-Sep-2025 08:44:04 UTC] WHERE clause: user_id = :user_id
+[14-Sep-2025 08:44:04 UTC] Parameters: {":user_id":35}
+[14-Sep-2025 08:44:04 UTC] Count SQL: SELECT COUNT(*) as total FROM navigation_routes WHERE user_id = :user_id
+[14-Sep-2025 08:44:04 UTC] Total count result: 0
+[14-Sep-2025 08:44:04 UTC] Main SQL: SELECT * FROM navigation_routes 
+            WHERE user_id = :user_id 
+            ORDER BY created_at DESC 
+            LIMIT :limit OFFSET :offset
+[14-Sep-2025 08:44:04 UTC] Routes found: 0
+[14-Sep-2025 09:03:43 UTC] Navigation Routes API Request: {"timestamp":"2025-09-14 09:03:43","method":"GET","url":"\/mobile-api\/endpoints\/navigation-routes\/get_navigation_routes.php?user_id=35&limit=100&offset=0&order_by=created_at&order_direction=DESC&search=","user_agent":"okhttp\/4.12.0","ip":"112.204.103.23","get_params":{"user_id":"35","limit":"100","offset":"0","order_by":"created_at","order_direction":"DESC","search":""},"post_params":[]}
+[14-Sep-2025 09:03:43 UTC] Attempting to include database configuration...
+[14-Sep-2025 09:03:43 UTC] Database configuration included. Database class exists: YES
+[14-Sep-2025 09:03:43 UTC] Query parameters - user_id: 35, limit: 100, offset: 0, order_by: created_at, order_direction: DESC, favorites_only: false, search: ''
+[14-Sep-2025 09:03:43 UTC] Attempting to create Database instance...
+[14-Sep-2025 09:03:43 UTC] Database connection attempt - trying hosts: localhost, localhost, 127.0.0.1
+[14-Sep-2025 09:03:43 UTC] Database config - host: localhost, dbname: u126959096_gzing_admin, username: u126959096_gzing_admin
+[14-Sep-2025 09:03:43 UTC] Attempting connection to: mysql:host=localhost;dbname=u126959096_gzing_admin;charset=utf8mb4
+[14-Sep-2025 09:03:43 UTC] SUCCESS: Connected to database on host: localhost
+[14-Sep-2025 09:03:43 UTC] Database instance created successfully
+[14-Sep-2025 09:03:43 UTC] Attempting to get database connection...
+[14-Sep-2025 09:03:43 UTC] Database connection result: SUCCESS
+[14-Sep-2025 09:03:43 UTC] WHERE clause: user_id = :user_id
+[14-Sep-2025 09:03:43 UTC] Parameters: {":user_id":35}
+[14-Sep-2025 09:03:43 UTC] Count SQL: SELECT COUNT(*) as total FROM navigation_routes WHERE user_id = :user_id
+[14-Sep-2025 09:03:43 UTC] Total count result: 1
+[14-Sep-2025 09:03:43 UTC] Main SQL: SELECT * FROM navigation_routes 
+            WHERE user_id = :user_id 
+            ORDER BY created_at DESC 
+            LIMIT :limit OFFSET :offset
+[14-Sep-2025 09:03:43 UTC] Routes found: 1
+[14-Sep-2025 09:04:52 UTC] Navigation Routes API Request: {"timestamp":"2025-09-14 09:04:52","method":"GET","url":"\/mobile-api\/endpoints\/navigation-routes\/get_navigation_routes.php?user_id=35&limit=100&offset=0&order_by=created_at&order_direction=DESC&search=","user_agent":"okhttp\/4.12.0","ip":"112.204.103.23","get_params":{"user_id":"35","limit":"100","offset":"0","order_by":"created_at","order_direction":"DESC","search":""},"post_params":[]}
+[14-Sep-2025 09:04:52 UTC] Attempting to include database configuration...
+[14-Sep-2025 09:04:52 UTC] Database configuration included. Database class exists: YES
+[14-Sep-2025 09:04:52 UTC] Query parameters - user_id: 35, limit: 100, offset: 0, order_by: created_at, order_direction: DESC, favorites_only: false, search: ''
+[14-Sep-2025 09:04:52 UTC] Attempting to create Database instance...
+[14-Sep-2025 09:04:52 UTC] Database connection attempt - trying hosts: localhost, localhost, 127.0.0.1
+[14-Sep-2025 09:04:52 UTC] Database config - host: localhost, dbname: u126959096_gzing_admin, username: u126959096_gzing_admin
+[14-Sep-2025 09:04:52 UTC] Attempting connection to: mysql:host=localhost;dbname=u126959096_gzing_admin;charset=utf8mb4
+[14-Sep-2025 09:04:52 UTC] SUCCESS: Connected to database on host: localhost
+[14-Sep-2025 09:04:52 UTC] Database instance created successfully
+[14-Sep-2025 09:04:52 UTC] Attempting to get database connection...
+[14-Sep-2025 09:04:52 UTC] Database connection result: SUCCESS
+[14-Sep-2025 09:04:52 UTC] WHERE clause: user_id = :user_id
+[14-Sep-2025 09:04:52 UTC] Parameters: {":user_id":35}
+[14-Sep-2025 09:04:52 UTC] Count SQL: SELECT COUNT(*) as total FROM navigation_routes WHERE user_id = :user_id
+[14-Sep-2025 09:04:52 UTC] Total count result: 2
+[14-Sep-2025 09:04:52 UTC] Main SQL: SELECT * FROM navigation_routes 
+            WHERE user_id = :user_id 
+            ORDER BY created_at DESC 
+            LIMIT :limit OFFSET :offset
+[14-Sep-2025 09:04:52 UTC] Routes found: 2
+[14-Sep-2025 09:09:58 UTC] Navigation Routes API Request: {"timestamp":"2025-09-14 09:09:58","method":"GET","url":"\/mobile-api\/endpoints\/navigation-routes\/get_navigation_routes.php?user_id=35&limit=100&offset=0&order_by=created_at&order_direction=DESC&search=","user_agent":"okhttp\/4.12.0","ip":"112.204.103.23","get_params":{"user_id":"35","limit":"100","offset":"0","order_by":"created_at","order_direction":"DESC","search":""},"post_params":[]}
+[14-Sep-2025 09:09:58 UTC] Attempting to include database configuration...
+[14-Sep-2025 09:09:58 UTC] Database configuration included. Database class exists: YES
+[14-Sep-2025 09:09:58 UTC] Query parameters - user_id: 35, limit: 100, offset: 0, order_by: created_at, order_direction: DESC, favorites_only: false, search: ''
+[14-Sep-2025 09:09:58 UTC] Attempting to create Database instance...
+[14-Sep-2025 09:09:58 UTC] Database connection attempt - trying hosts: localhost, localhost, 127.0.0.1
+[14-Sep-2025 09:09:58 UTC] Database config - host: localhost, dbname: u126959096_gzing_admin, username: u126959096_gzing_admin
+[14-Sep-2025 09:09:58 UTC] Attempting connection to: mysql:host=localhost;dbname=u126959096_gzing_admin;charset=utf8mb4
+[14-Sep-2025 09:09:58 UTC] SUCCESS: Connected to database on host: localhost
+[14-Sep-2025 09:09:58 UTC] Database instance created successfully
+[14-Sep-2025 09:09:58 UTC] Attempting to get database connection...
+[14-Sep-2025 09:09:58 UTC] Database connection result: SUCCESS
+[14-Sep-2025 09:09:58 UTC] WHERE clause: user_id = :user_id
+[14-Sep-2025 09:09:58 UTC] Parameters: {":user_id":35}
+[14-Sep-2025 09:09:58 UTC] Count SQL: SELECT COUNT(*) as total FROM navigation_routes WHERE user_id = :user_id
+[14-Sep-2025 09:09:58 UTC] Total count result: 3
+[14-Sep-2025 09:09:58 UTC] Main SQL: SELECT * FROM navigation_routes 
+            WHERE user_id = :user_id 
+            ORDER BY created_at DESC 
+            LIMIT :limit OFFSET :offset
+[14-Sep-2025 09:09:58 UTC] Routes found: 3
+[14-Sep-2025 09:10:15 UTC] Navigation Routes API Request: {"timestamp":"2025-09-14 09:10:15","method":"GET","url":"\/mobile-api\/endpoints\/navigation-routes\/get_navigation_routes.php?user_id=35&limit=100&offset=0&order_by=created_at&order_direction=DESC&search=","user_agent":"okhttp\/4.12.0","ip":"112.204.103.23","get_params":{"user_id":"35","limit":"100","offset":"0","order_by":"created_at","order_direction":"DESC","search":""},"post_params":[]}
+[14-Sep-2025 09:10:15 UTC] Attempting to include database configuration...
+[14-Sep-2025 09:10:15 UTC] Database configuration included. Database class exists: YES
+[14-Sep-2025 09:10:15 UTC] Query parameters - user_id: 35, limit: 100, offset: 0, order_by: created_at, order_direction: DESC, favorites_only: false, search: ''
+[14-Sep-2025 09:10:15 UTC] Attempting to create Database instance...
+[14-Sep-2025 09:10:15 UTC] Database connection attempt - trying hosts: localhost, localhost, 127.0.0.1
+[14-Sep-2025 09:10:15 UTC] Database config - host: localhost, dbname: u126959096_gzing_admin, username: u126959096_gzing_admin
+[14-Sep-2025 09:10:15 UTC] Attempting connection to: mysql:host=localhost;dbname=u126959096_gzing_admin;charset=utf8mb4
+[14-Sep-2025 09:10:15 UTC] SUCCESS: Connected to database on host: localhost
+[14-Sep-2025 09:10:15 UTC] Database instance created successfully
+[14-Sep-2025 09:10:15 UTC] Attempting to get database connection...
+[14-Sep-2025 09:10:15 UTC] Database connection result: SUCCESS
+[14-Sep-2025 09:10:15 UTC] WHERE clause: user_id = :user_id
+[14-Sep-2025 09:10:15 UTC] Parameters: {":user_id":35}
+[14-Sep-2025 09:10:15 UTC] Count SQL: SELECT COUNT(*) as total FROM navigation_routes WHERE user_id = :user_id
+[14-Sep-2025 09:10:15 UTC] Total count result: 3
+[14-Sep-2025 09:10:15 UTC] Main SQL: SELECT * FROM navigation_routes 
+            WHERE user_id = :user_id 
+            ORDER BY created_at DESC 
+            LIMIT :limit OFFSET :offset
+[14-Sep-2025 09:10:15 UTC] Routes found: 3

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetch User Details - Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .demo-section {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+        }
+        .user-card {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .user-field {
+            display: flex;
+            margin: 8px 0;
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .user-field:last-child {
+            border-bottom: none;
+        }
+        .field-label {
+            font-weight: bold;
+            min-width: 120px;
+            color: #495057;
+        }
+        .field-value {
+            color: #212529;
+            font-family: monospace;
+        }
+        .response {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+        input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 5px;
+            width: 100px;
+        }
+        .url { 
+            font-family: monospace; 
+            background: #e9ecef; 
+            padding: 2px 6px; 
+            border-radius: 3px; 
+            color: #495057;
+        }
+        .success { border-left-color: #28a745; }
+        .error { border-left-color: #dc3545; }
+        .loading { border-left-color: #ffc107; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>👤 Fetch User Details Demo</h1>
+        <p>Test the getuser.php API to fetch user information from the database.</p>
+        
+        <div class="demo-section">
+            <h3>🔍 Fetch User by ID</h3>
+            <p>Enter a user ID to fetch their details:</p>
+            <input type="number" id="userId" placeholder="User ID" value="9" min="1">
+            <button onclick="fetchUser()">Fetch User Details</button>
+            <button onclick="fetchRandomUser()">Fetch Random User</button>
+            <div id="userResult" class="response">Click "Fetch User Details" to get user information...</div>
+        </div>
+        
+        <div class="demo-section">
+            <h3>📊 User Information Display</h3>
+            <div id="userDisplay" class="user-card">
+                <p style="text-align: center; color: #6c757d;">No user data loaded yet</p>
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h3>🔧 API Details</h3>
+            <p><strong>Endpoint:</strong> <span class="url">GET /getuser.php?id={user_id}</span></p>
+            <p><strong>Base URL:</strong> <span class="url">https://powderblue-pig-261057.hostingersite.com/mobile-api/prototype/</span></p>
+            <p><strong>Database:</strong> <span class="url">u126959096_gzing_admin</span></p>
+            <p><strong>Authentication:</strong> None required (prototype mode)</p>
+        </div>
+        
+        <div class="demo-section">
+            <h3>📝 Raw API Response</h3>
+            <div id="rawResponse" class="response">Raw JSON response will appear here...</div>
+        </div>
+    </div>
+
+    <script>
+        const baseUrl = 'https://powderblue-pig-261057.hostingersite.com/mobile-api/prototype/';
+        
+        async function fetchUser() {
+            const userId = document.getElementById('userId').value;
+            if (!userId) {
+                showError('Please enter a user ID');
+                return;
+            }
+            
+            try {
+                showLoading(`Fetching user ${userId}...`);
+                
+                const response = await fetch(`${baseUrl}getuser.php?id=${userId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    showSuccess(data);
+                    displayUser(data.data.user);
+                } else {
+                    showError(data.message);
+                }
+                
+                showRawResponse(data);
+                
+            } catch (error) {
+                showError('Network error: ' + error.message);
+            }
+        }
+        
+        async function fetchRandomUser() {
+            // Try different user IDs to find one that exists
+            const userIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33];
+            
+            for (const id of userIds) {
+                try {
+                    showLoading(`Trying user ID ${id}...`);
+                    const response = await fetch(`${baseUrl}getuser.php?id=${id}`);
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        document.getElementById('userId').value = id;
+                        showSuccess(data);
+                        displayUser(data.data.user);
+                        showRawResponse(data);
+                        return;
+                    }
+                } catch (error) {
+                    continue;
+                }
+            }
+            
+            showError('No users found in the database');
+        }
+        
+        function displayUser(user) {
+            const userDisplay = document.getElementById('userDisplay');
+            
+            if (!user) {
+                userDisplay.innerHTML = '<p style="text-align: center; color: #dc3545;">No user data to display</p>';
+                return;
+            }
+            
+            userDisplay.innerHTML = `
+                <h4>👤 ${user.first_name} ${user.last_name}</h4>
+                <div class="user-field">
+                    <span class="field-label">ID:</span>
+                    <span class="field-value">${user.id}</span>
+                </div>
+                <div class="user-field">
+                    <span class="field-label">Email:</span>
+                    <span class="field-value">${user.email}</span>
+                </div>
+                <div class="user-field">
+                    <span class="field-label">Username:</span>
+                    <span class="field-value">${user.username || 'Not set'}</span>
+                </div>
+                <div class="user-field">
+                    <span class="field-label">Phone:</span>
+                    <span class="field-value">${user.phone_number || 'Not set'}</span>
+                </div>
+                <div class="user-field">
+                    <span class="field-label">Role:</span>
+                    <span class="field-value">${user.role}</span>
+                </div>
+                <div class="user-field">
+                    <span class="field-label">Status:</span>
+                    <span class="field-value">${user.status}</span>
+                </div>
+                <div class="user-field">
+                    <span class="field-label">Created:</span>
+                    <span class="field-value">${user.created_at}</span>
+                </div>
+                <div class="user-field">
+                    <span class="field-label">Updated:</span>
+                    <span class="field-value">${user.updated_at}</span>
+                </div>
+                <div class="user-field">
+                    <span class="field-label">Last Login:</span>
+                    <span class="field-value">${user.last_login || 'Never'}</span>
+                </div>
+            `;
+        }
+        
+        function showLoading(message) {
+            const resultDiv = document.getElementById('userResult');
+            resultDiv.textContent = message;
+            resultDiv.parentElement.className = 'demo-section loading';
+        }
+        
+        function showSuccess(data) {
+            const resultDiv = document.getElementById('userResult');
+            resultDiv.textContent = `✅ Success: ${data.message}`;
+            resultDiv.parentElement.className = 'demo-section success';
+        }
+        
+        function showError(message) {
+            const resultDiv = document.getElementById('userResult');
+            resultDiv.textContent = `❌ Error: ${message}`;
+            resultDiv.parentElement.className = 'demo-section error';
+        }
+        
+        function showRawResponse(data) {
+            const rawDiv = document.getElementById('rawResponse');
+            rawDiv.textContent = JSON.stringify(data, null, 2);
+        }
+        
+        // Auto-fetch user 9 on page load
+        window.onload = function() {
+            fetchUser();
+        };
+    </script>
+</body>
+</html>
+

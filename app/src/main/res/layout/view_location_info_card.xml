@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardLocationInfo"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="16dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="8dp"
+    app:cardBackgroundColor="@android:color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Header with title and chevron -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Location Information"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#8B4513" />
+
+            <ImageView
+                android:id="@+id/btnCollapse"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_expand_more"
+                android:tint="#8B4513"
+                android:background="?attr/selectableItemBackgroundBorderless" />
+
+        </LinearLayout>
+
+        <!-- Content container (toggle visibility) -->
+        <LinearLayout
+            android:id="@+id/locationContentContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Legacy hidden field to maintain compatibility with code -->
+            <TextView
+                android:id="@+id/tvLocationAddress"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="gone" />
+
+            <!-- Current Location Row -->
+            <LinearLayout
+                android:id="@+id/rowCurrent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Current"
+                    android:textSize="13sp"
+                    android:textColor="#666666"
+                    android:layout_marginEnd="8dp" />
+
+                <TextView
+                    android:id="@+id/tvCurrentLocation"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Getting your location..."
+                    android:textSize="14sp"
+                    android:textColor="#333333"
+                    android:lineSpacingExtra="2dp" />
+            </LinearLayout>
+
+            <!-- Pinned Location Row -->
+            <LinearLayout
+                android:id="@+id/rowPinned"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Pinned"
+                    android:textSize="13sp"
+                    android:textColor="#666666"
+                    android:layout_marginEnd="8dp" />
+
+                <TextView
+                    android:id="@+id/tvPinnedLocation"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="No pin"
+                    android:textSize="14sp"
+                    android:textColor="#333333" />
+            </LinearLayout>
+
+            <!-- Distance and ETA Row -->
+            <LinearLayout
+                android:id="@+id/rowStats"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:id="@+id/tvDistance"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Distance: --"
+                    android:textSize="14sp"
+                    android:textColor="#333333" />
+
+                <TextView
+                    android:id="@+id/tvEta"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ETA: --"
+                    android:textSize="14sp"
+                    android:textColor="#333333" />
+            </LinearLayout>
+
+            <!-- Estimated Fare Row -->
+            <LinearLayout
+                android:id="@+id/rowFare"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Estimated Fare"
+                    android:textSize="13sp"
+                    android:textColor="#666666"
+                    android:layout_marginEnd="8dp" />
+
+                <TextView
+                    android:id="@+id/tvFare"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="₱ --"
+                    android:textSize="14sp"
+                    android:textColor="#333333" />
+            </LinearLayout>
+
+            <!-- Traffic Indicator Row -->
+            <LinearLayout
+                android:id="@+id/rowTraffic"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Traffic"
+                    android:textSize="13sp"
+                    android:textColor="#666666"
+                    android:layout_marginEnd="8dp" />
+
+                <View
+                    android:id="@+id/trafficDot"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:background="@drawable/circle_background"
+                    android:layout_marginEnd="6dp" />
+
+                <TextView
+                    android:id="@+id/tvTrafficStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Off"
+                    android:textSize="14sp"
+                    android:textColor="#333333" />
+
+            </LinearLayout>
+
+            <!-- CTA button (optional) -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnStartNavigation"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Start Navigation"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:backgroundTint="#8B4513"
+                app:cornerRadius="8dp"
+                app:icon="@drawable/ic_navigation"
+                app:iconTint="@android:color/white"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>
+
+

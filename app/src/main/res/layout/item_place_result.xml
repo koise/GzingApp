@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="4dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="1dp"
+    app:strokeWidth="0dp"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:gravity="center_vertical">
+
+        <!-- Place Icon -->
+        <ImageView
+            android:id="@+id/ivPlaceIcon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_place"
+            android:background="@drawable/circle_background_primary"
+            android:padding="8dp"
+            android:layout_marginEnd="16dp"
+            app:tint="@color/white" />
+
+        <!-- Place Details -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <!-- Place Name -->
+            <TextView
+                android:id="@+id/tvPlaceName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Place Name"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                android:maxLines="2"
+                android:ellipsize="end" />
+
+            <!-- Place Address -->
+            <TextView
+                android:id="@+id/tvPlaceAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Place Address"
+                android:textSize="14sp"
+                android:textColor="@color/text_secondary"
+                android:layout_marginTop="2dp"
+                android:maxLines="2"
+                android:ellipsize="end" />
+
+            <!-- Place Category -->
+            <TextView
+                android:id="@+id/tvPlaceCategory"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Category"
+                android:textSize="12sp"
+                android:textColor="@color/primary_color"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/rounded_background_primary_light"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp" />
+
+        </LinearLayout>
+
+        <!-- Action Arrow -->
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_arrow_forward"
+            android:layout_marginStart="8dp"
+            app:tint="@color/text_secondary" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>
+

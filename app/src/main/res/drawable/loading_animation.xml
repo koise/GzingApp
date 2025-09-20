@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="40dp"
+    android:height="40dp"
+    android:viewportWidth="40"
+    android:viewportHeight="40">
+    
+    <!-- Simple loading circle -->
+    <path
+        android:fillColor="@color/primary_brown"
+        android:pathData="M20,20m-15,0a15,15 0,1 1,30 0a15,15 0,1 1,-30 0" />
+    
+    <!-- Loading dots -->
+    <path
+        android:fillColor="@color/accent_gold"
+        android:pathData="M12,20m-2,0a2,2 0,1 1,4 0a2,2 0,1 1,-4 0" />
+    <path
+        android:fillColor="@color/accent_gold"
+        android:pathData="M20,20m-2,0a2,2 0,1 1,4 0a2,2 0,1 1,-4 0" />
+    <path
+        android:fillColor="@color/accent_gold"
+        android:pathData="M28,20m-2,0a2,2 0,1 1,4 0a2,2 0,1 1,-4 0" />
+    
+</vector>

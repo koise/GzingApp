@@ -1,0 +1,767 @@
+package com.example.gzingapp.ui.profile
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.gzingapp.data.*
+import com.example.gzingapp.repository.ProfileRepository
+import com.example.gzingapp.utils.AppSettings
+import kotlinx.coroutines.launch
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ProfileScreen(
+    onBackClick: () -> Unit,
+    onLogoutClick: () -> Unit
+) {
+    val profileRepository = ProfileRepository()
+    val context = LocalContext.current
+    val appSettings = AppSettings(context)
+    val coroutineScope = rememberCoroutineScope()
+    
+    var userProfile by remember { mutableStateOf<UserProfile?>(null) }
+    var sosContacts by remember { mutableStateOf<List<SosContact>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+    var showAddContactDialog by remember { mutableStateOf(false) }
+    var showEditProfileDialog by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    
+    val userId = appSettings.getUserId() ?: 10
+    
+    LaunchedEffect(Unit) {
+        // User ID is always available (defaults to 10 for testing)
+        // Load user profile
+        profileRepository.getUserProfile(userId).fold(
+                onSuccess = { profile ->
+                    userProfile = profile
+                },
+                onFailure = { error ->
+                    errorMessage = "Failed to load profile: ${error.message}"
+                }
+            )
+            
+        // Load SOS contacts
+        profileRepository.getSosContacts(userId).fold(
+                onSuccess = { contacts ->
+                    sosContacts = contacts
+                },
+                onFailure = { error ->
+                    errorMessage = "Failed to load SOS contacts: ${error.message}"
+                }
+            )
+        // User ID is always available, no error needed
+        isLoading = false
+    }
+    
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { 
+                    Text(
+                        "Profile", 
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold
+                    ) 
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack, 
+                            contentDescription = "Back",
+                            tint = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = onLogoutClick) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ExitToApp, 
+                            contentDescription = "Logout",
+                            tint = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+                )
+            )
+        }
+    ) { paddingValues ->
+        if (isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        } else if (errorMessage != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Icon(
+                        Icons.Default.Error,
+                        contentDescription = "Error",
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.size(48.dp)
+                    )
+                    Text(
+                        text = errorMessage!!,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Button(onClick = { 
+                        errorMessage = null
+                        isLoading = true
+                    }) {
+                        Text("Retry")
+                    }
+                }
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Profile Header Card
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer
+                        )
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(24.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            // Profile Avatar
+                            Box(
+                                modifier = Modifier
+                                    .size(80.dp)
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.primary),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = userProfile?.let { "${it.firstName.first()}${it.lastName.first()}" } ?: "U",
+                                    style = MaterialTheme.typography.headlineMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onPrimary
+                                )
+                            }
+                            
+                            // User Name
+                            userProfile?.let { profile ->
+                                Text(
+                                    text = "${profile.firstName} ${profile.lastName}",
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    textAlign = TextAlign.Center
+                                )
+                                
+                                Text(
+                                    text = profile.email,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
+                                    textAlign = TextAlign.Center
+                                )
+                                
+                                // Status Badge
+                                Surface(
+                                    shape = RoundedCornerShape(12.dp),
+                                    color = if (profile.status == "active") 
+                                        MaterialTheme.colorScheme.primary 
+                                    else 
+                                        MaterialTheme.colorScheme.error
+                                ) {
+                                    Text(
+                                        text = profile.status.replaceFirstChar { it.uppercase() },
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = if (profile.status == "active") 
+                                            MaterialTheme.colorScheme.onPrimary 
+                                        else 
+                                            MaterialTheme.colorScheme.onError,
+                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Profile Information Card
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(20.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "Personal Information",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                IconButton(
+                                    onClick = { showEditProfileDialog = true },
+                                    colors = IconButtonDefaults.iconButtonColors(
+                                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                                    )
+                                ) {
+                                    Icon(
+                                        Icons.Default.Edit, 
+                                        contentDescription = "Edit Profile",
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+                            
+                            userProfile?.let { profile ->
+                                ProfileInfoRow(
+                                    icon = Icons.Default.Person,
+                                    label = "Full Name", 
+                                    value = "${profile.firstName} ${profile.lastName}"
+                                )
+                                ProfileInfoRow(
+                                    icon = Icons.Default.Email,
+                                    label = "Email", 
+                                    value = profile.email
+                                )
+                                ProfileInfoRow(
+                                    icon = Icons.Default.Person,
+                                    label = "Username", 
+                                    value = profile.username
+                                )
+                                profile.phoneNumber?.let { phone ->
+                                    ProfileInfoRow(
+                                        icon = Icons.Default.Phone,
+                                        label = "Phone", 
+                                        value = phone
+                                    )
+                                }
+                                ProfileInfoRow(
+                                    icon = Icons.Default.Badge,
+                                    label = "Role", 
+                                    value = profile.role.replaceFirstChar { it.uppercase() }
+                                )
+                                ProfileInfoRow(
+                                    icon = Icons.Default.CalendarToday,
+                                    label = "Member Since", 
+                                    value = profile.createdAt.substring(0, 10)
+                                )
+                            }
+                        }
+                    }
+                }
+                
+                // SOS Contacts Card
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(20.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    Icon(
+                                        Icons.Default.Emergency,
+                                        contentDescription = "Emergency",
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                    Text(
+                                        text = "Emergency Contacts",
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Surface(
+                                        shape = RoundedCornerShape(12.dp),
+                                        color = MaterialTheme.colorScheme.primaryContainer
+                                    ) {
+                                        Text(
+                                            text = "${sosContacts.size}",
+                                            style = MaterialTheme.typography.labelMedium,
+                                            color = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                        )
+                                    }
+                                }
+                                FloatingActionButton(
+                                    onClick = { showAddContactDialog = true },
+                                    modifier = Modifier.size(40.dp),
+                                    containerColor = MaterialTheme.colorScheme.primary
+                                ) {
+                                    Icon(
+                                        Icons.Default.Add, 
+                                        contentDescription = "Add Contact",
+                                        tint = MaterialTheme.colorScheme.onPrimary
+                                    )
+                                }
+                            }
+                            
+                            if (sosContacts.isEmpty()) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 24.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    Icon(
+                                        Icons.Default.Emergency,
+                                        contentDescription = "No contacts",
+                                        modifier = Modifier.size(48.dp),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                                    )
+                                    Text(
+                                        text = "No emergency contacts added yet",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        textAlign = TextAlign.Center
+                                    )
+                                    Text(
+                                        text = "Tap the + button to add your first emergency contact",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
+                            } else {
+                                sosContacts.forEach { contact ->
+                                    SosContactItem(
+                                        contact = contact,
+                                        onDelete = { contactId ->
+                                            // Delete contact
+                                            // User ID is always available
+                                            coroutineScope.launch {
+                                                profileRepository.deleteSosContact(userId, contactId).fold(
+                                                        onSuccess = {
+                                                            sosContacts = sosContacts.filter { it.id != contactId }
+                                                        },
+                                                        onFailure = { error ->
+                                                            errorMessage = "Failed to delete contact: ${error.message}"
+                                                        }
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    // Add Contact Dialog
+    if (showAddContactDialog) {
+        AddSosContactDialog(
+            onDismiss = { showAddContactDialog = false },
+            onAddContact = { contactRequest ->
+                // User ID is always available
+                coroutineScope.launch {
+                    profileRepository.addSosContact(userId, contactRequest).fold(
+                            onSuccess = { newContact ->
+                                sosContacts = sosContacts + newContact
+                                showAddContactDialog = false
+                            },
+                            onFailure = { error ->
+                                errorMessage = "Failed to add contact: ${error.message}"
+                            }
+                        )
+                    }
+                }
+            }
+        )
+    }
+    
+    // Edit Profile Dialog
+    if (showEditProfileDialog) {
+        EditProfileDialog(
+            profile = userProfile,
+            onDismiss = { showEditProfileDialog = false },
+            onUpdateProfile = { updateRequest ->
+                // User ID is always available
+                coroutineScope.launch {
+                    profileRepository.updateProfile(userId, updateRequest).fold(
+                        onSuccess = {
+                            // Reload profile
+                            profileRepository.getUserProfile(userId).fold(
+                                    onSuccess = { updatedProfile ->
+                                        userProfile = updatedProfile
+                                    },
+                                    onFailure = { error ->
+                                        errorMessage = "Failed to reload profile: ${error.message}"
+                                    }
+                                )
+                                showEditProfileDialog = false
+                            },
+                            onFailure = { error ->
+                                errorMessage = "Failed to update profile: ${error.message}"
+                            }
+                        )
+                    }
+                }
+            }
+        )
+    }
+}
+
+@Composable
+fun ProfileInfoRow(
+    icon: ImageVector,
+    label: String, 
+    value: String
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = label,
+            modifier = Modifier.size(20.dp),
+            tint = MaterialTheme.colorScheme.primary
+        )
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = value,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+    }
+}
+
+@Composable
+fun SosContactItem(
+    contact: SosContact,
+    onDelete: (Int) -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (contact.isPrimary) 
+                MaterialTheme.colorScheme.primaryContainer 
+            else 
+                MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(
+                modifier = Modifier.weight(1f),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // Contact Avatar
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(
+                            if (contact.isPrimary) 
+                                MaterialTheme.colorScheme.primary 
+                            else 
+                                MaterialTheme.colorScheme.secondary
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = contact.name.first().toString(),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = if (contact.isPrimary) 
+                            MaterialTheme.colorScheme.onPrimary 
+                        else 
+                            MaterialTheme.colorScheme.onSecondary
+                    )
+                }
+                
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = contact.name,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = if (contact.isPrimary) 
+                                MaterialTheme.colorScheme.onPrimaryContainer 
+                            else 
+                                MaterialTheme.colorScheme.onSurface
+                        )
+                        if (contact.isPrimary) {
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = MaterialTheme.colorScheme.primary
+                            ) {
+                                Text(
+                                    text = "PRIMARY",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                                )
+                            }
+                        }
+                    }
+                    Text(
+                        text = contact.phoneNumber,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = if (contact.isPrimary) 
+                            MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                        else 
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = contact.relationship,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (contact.isPrimary) 
+                            MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f)
+                        else 
+                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                    )
+                }
+            }
+            
+            IconButton(
+                onClick = { onDelete(contact.id) },
+                colors = IconButtonDefaults.iconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer
+                )
+            ) {
+                Icon(
+                    Icons.Default.Delete,
+                    contentDescription = "Delete Contact",
+                    tint = MaterialTheme.colorScheme.error
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun AddSosContactDialog(
+    onDismiss: () -> Unit,
+    onAddContact: (AddSosContactRequest) -> Unit
+) {
+    var name by remember { mutableStateOf("") }
+    var phoneNumber by remember { mutableStateOf("") }
+    var relationship by remember { mutableStateOf("") }
+    var isPrimary by remember { mutableStateOf(false) }
+    
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Add SOS Contact") },
+        text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Name") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = phoneNumber,
+                    onValueChange = { phoneNumber = it },
+                    label = { Text("Phone Number") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = relationship,
+                    onValueChange = { relationship = it },
+                    label = { Text("Relationship") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(
+                        checked = isPrimary,
+                        onCheckedChange = { isPrimary = it }
+                    )
+                    Text("Set as primary contact")
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    if (name.isNotBlank() && phoneNumber.isNotBlank() && relationship.isNotBlank()) {
+                        onAddContact(
+                            AddSosContactRequest(
+                                name = name,
+                                phoneNumber = phoneNumber,
+                                relationship = relationship,
+                                isPrimary = isPrimary
+                            )
+                        )
+                    }
+                }
+            ) {
+                Text("Add")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+@Composable
+fun EditProfileDialog(
+    profile: UserProfile?,
+    onDismiss: () -> Unit,
+    onUpdateProfile: (UpdateProfileRequest) -> Unit
+) {
+    var firstName by remember { mutableStateOf(profile?.firstName ?: "") }
+    var lastName by remember { mutableStateOf(profile?.lastName ?: "") }
+    var phoneNumber by remember { mutableStateOf(profile?.phoneNumber ?: "") }
+    var username by remember { mutableStateOf(profile?.username ?: "") }
+    var notes by remember { mutableStateOf(profile?.notes ?: "") }
+    
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Edit Profile") },
+        text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                OutlinedTextField(
+                    value = firstName,
+                    onValueChange = { firstName = it },
+                    label = { Text("First Name") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = lastName,
+                    onValueChange = { lastName = it },
+                    label = { Text("Last Name") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = phoneNumber,
+                    onValueChange = { phoneNumber = it },
+                    label = { Text("Phone Number") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = username,
+                    onValueChange = { username = it },
+                    label = { Text("Username") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = notes,
+                    onValueChange = { notes = it },
+                    label = { Text("Notes") },
+                    modifier = Modifier.fillMaxWidth(),
+                    maxLines = 3
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onUpdateProfile(
+                        UpdateProfileRequest(
+                            firstName = firstName,
+                            lastName = lastName,
+                            phoneNumber = phoneNumber.ifBlank { null },
+                            username = username,
+                            notes = notes.ifBlank { null }
+                        )
+                    )
+                }
+            ) {
+                Text("Update")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}

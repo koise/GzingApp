@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Select transportation mode"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:paddingBottom="12dp" />
+
+    <RadioGroup
+        android:id="@+id/rgTransport"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RadioButton
+            android:id="@+id/rbCar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Car" />
+
+        <RadioButton
+            android:id="@+id/rbWalk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Walk" />
+
+        <RadioButton
+            android:id="@+id/rbMotor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Motor" />
+
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/btnTransportApply"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Apply"
+        android:layout_marginTop="16dp" />
+
+</LinearLayout>
+
+
+

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="⚠️ Warning: This action cannot be undone!"
+        android:textSize="14sp"
+        android:textColor="#E74C3C"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp"
+        android:gravity="center" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Deleting your account will permanently remove:"
+        android:textSize="14sp"
+        android:textColor="#2C3E50"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="• Your profile information\n• All emergency contacts\n• Navigation history\n• All associated data"
+        android:textSize="13sp"
+        android:textColor="#7F8C8D"
+        android:layout_marginBottom="16dp" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:boxStrokeColor="@color/error_red"
+        app:hintTextColor="@color/error_red">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter your password to confirm"
+            android:inputType="textPassword"
+            android:textSize="16sp"
+            android:textColor="#2C3E50" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+</LinearLayout>

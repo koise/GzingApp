@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test User 9 - Debug</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-section {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { border-left: 4px solid #28a745; }
+        .error { border-left: 4px solid #dc3545; }
+        .warning { border-left: 4px solid #ffc107; }
+        .response {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .url { font-family: monospace; background: #e9ecef; padding: 2px 6px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Debug User 9 Issue</h1>
+        <p>Let's figure out why user 9 is not found!</p>
+        
+        <div class="test-section">
+            <h3>1. Check All Users in Database</h3>
+            <button onclick="checkAllUsers()">Check All Users</button>
+            <div id="allUsers" class="response">Click button to check...</div>
+        </div>
+        
+        <div class="test-section">
+            <h3>2. Test Original API (getuser.php)</h3>
+            <span class="url">GET /getuser?id=9</span>
+            <button onclick="testOriginalAPI()">Test Original API</button>
+            <div id="originalAPI" class="response">Click button to test...</div>
+        </div>
+        
+        <div class="test-section">
+            <h3>3. Test Debug API (getuser_debug.php)</h3>
+            <span class="url">GET /getuser_debug.php?id=9</span>
+            <button onclick="testDebugAPI()">Test Debug API</button>
+            <div id="debugAPI" class="response">Click button to test...</div>
+        </div>
+        
+        <div class="test-section">
+            <h3>4. Test Different User IDs</h3>
+            <button onclick="testUser1()">Test User 1</button>
+            <button onclick="testUser2()">Test User 2</button>
+            <button onclick="testUser10()">Test User 10</button>
+            <button onclick="testUser33()">Test User 33</button>
+            <div id="differentUsers" class="response">Click buttons to test different users...</div>
+        </div>
+        
+        <div class="test-section">
+            <h3>5. Direct Database Query</h3>
+            <button onclick="directQuery()">Direct Database Query</button>
+            <div id="directQuery" class="response">Click button to run direct query...</div>
+        </div>
+    </div>
+
+    <script>
+        const baseUrl = 'https://powderblue-pig-261057.hostingersite.com/mobile-api/prototype/';
+        
+        async function checkAllUsers() {
+            try {
+                showResponse('allUsers', 'Loading all users...');
+                const response = await fetch(`${baseUrl}check_users.php`);
+                const data = await response.json();
+                showResponse('allUsers', JSON.stringify(data, null, 2));
+            } catch (error) {
+                showResponse('allUsers', 'Error: ' + error.message);
+            }
+        }
+        
+        async function testOriginalAPI() {
+            try {
+                showResponse('originalAPI', 'Testing original API...');
+                const response = await fetch(`${baseUrl}getuser?id=9`);
+                const data = await response.json();
+                showResponse('originalAPI', JSON.stringify(data, null, 2));
+            } catch (error) {
+                showResponse('originalAPI', 'Error: ' + error.message);
+            }
+        }
+        
+        async function testDebugAPI() {
+            try {
+                showResponse('debugAPI', 'Testing debug API...');
+                const response = await fetch(`${baseUrl}getuser_debug.php?id=9`);
+                const data = await response.json();
+                showResponse('debugAPI', JSON.stringify(data, null, 2));
+            } catch (error) {
+                showResponse('debugAPI', 'Error: ' + error.message);
+            }
+        }
+        
+        async function testUser1() {
+            await testUser(1);
+        }
+        
+        async function testUser2() {
+            await testUser(2);
+        }
+        
+        async function testUser10() {
+            await testUser(10);
+        }
+        
+        async function testUser33() {
+            await testUser(33);
+        }
+        
+        async function testUser(userId) {
+            try {
+                showResponse('differentUsers', `Testing user ${userId}...`);
+                const response = await fetch(`${baseUrl}getuser?id=${userId}`);
+                const data = await response.json();
+                showResponse('differentUsers', `User ${userId}:\n` + JSON.stringify(data, null, 2));
+            } catch (error) {
+                showResponse('differentUsers', `User ${userId} Error: ` + error.message);
+            }
+        }
+        
+        async function directQuery() {
+            try {
+                showResponse('directQuery', 'Running direct database query...');
+                const response = await fetch(`${baseUrl}check_users.php`);
+                const data = await response.json();
+                showResponse('directQuery', JSON.stringify(data, null, 2));
+            } catch (error) {
+                showResponse('directQuery', 'Error: ' + error.message);
+            }
+        }
+        
+        function showResponse(elementId, text) {
+            document.getElementById(elementId).textContent = text;
+        }
+        
+        // Auto-run some tests on page load
+        window.onload = function() {
+            checkAllUsers();
+            testDebugAPI();
+        };
+    </script>
+</body>
+</html>
+

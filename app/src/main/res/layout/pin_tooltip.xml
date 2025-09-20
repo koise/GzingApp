@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="8dp"
+    app:cardBackgroundColor="@color/white">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp"
+        android:minWidth="200dp">
+
+        <!-- Pin Info -->
+        <TextView
+            android:id="@+id/tvPinName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pin Name"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/tvPinAddress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pin Address"
+            android:textSize="12sp"
+            android:textColor="@color/gray"
+            android:layout_marginTop="2dp" />
+
+        <!-- Action Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnNavigateToPin"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Navigate"
+                android:textSize="12sp"
+                android:layout_marginEnd="4dp"
+                app:icon="@drawable/ic_navigation"
+                app:iconSize="16dp"
+                app:iconGravity="textStart"
+                style="@style/Widget.Material3.Button.OutlinedButton" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnNavigateFromPin"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="From Here"
+                android:textSize="12sp"
+                android:layout_marginStart="4dp"
+                app:icon="@drawable/ic_my_location"
+                app:iconSize="16dp"
+                app:iconGravity="textStart"
+                style="@style/Widget.Material3.Button.OutlinedButton" />
+
+        </LinearLayout>
+
+        <!-- Close Button -->
+        <ImageView
+            android:id="@+id/btnCloseTooltip"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="end"
+            android:layout_marginTop="-8dp"
+            android:layout_marginEnd="-8dp"
+            android:src="@drawable/ic_close"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="4dp"
+            android:contentDescription="Close" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>
+
+
+
+

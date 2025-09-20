@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prototype API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .endpoint {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 4px solid #007bff;
+        }
+        .method {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 12px;
+            margin-right: 10px;
+        }
+        .get { background: #28a745; color: white; }
+        .post { background: #007bff; color: white; }
+        .url {
+            font-family: monospace;
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        .response {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Prototype API Test</h1>
+        <p>Simple API for prototyping - No authentication required!</p>
+        
+        <h2>Available Endpoints</h2>
+        
+        <div class="endpoint">
+            <span class="method get">GET</span>
+            <span class="url">/getuser?id=10</span>
+            <p>Fetch user data by ID</p>
+            <input type="number" id="userId" placeholder="User ID" value="10">
+            <button onclick="getUser()">Get User</button>
+        </div>
+        
+        <div class="endpoint">
+            <span class="method post">POST</span>
+            <span class="url">/getuser</span>
+            <p>Create new user</p>
+            <button onclick="createUser()">Create Test User</button>
+        </div>
+        
+        <h2>API Response</h2>
+        <div id="response" class="response">Click a button above to test the API...</div>
+    </div>
+
+    <script>
+        const baseUrl = 'https://powderblue-pig-261057.hostingersite.com/mobile-api/prototype/';
+        
+        async function getUser() {
+            const userId = document.getElementById('userId').value;
+            if (!userId) {
+                showResponse('Please enter a user ID');
+                return;
+            }
+            
+            try {
+                showResponse('Loading...');
+                const response = await fetch(`${baseUrl}getuser?id=${userId}`);
+                const data = await response.json();
+                showResponse(JSON.stringify(data, null, 2));
+            } catch (error) {
+                showResponse('Error: ' + error.message);
+            }
+        }
+        
+        async function createUser() {
+            const testUser = {
+                action: 'create',
+                first_name: 'Test',
+                last_name: 'User',
+                email: 'test' + Date.now() + '@example.com',
+                password: 'password123',
+                username: 'testuser' + Date.now(),
+                phone_number: '+1234567890'
+            };
+            
+            try {
+                showResponse('Creating user...');
+                const response = await fetch(`${baseUrl}getuser`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(testUser)
+                });
+                const data = await response.json();
+                showResponse(JSON.stringify(data, null, 2));
+            } catch (error) {
+                showResponse('Error: ' + error.message);
+            }
+        }
+        
+        function showResponse(text) {
+            document.getElementById('response').textContent = text;
+        }
+        
+        // Test the API on page load
+        window.onload = function() {
+            getUser();
+        };
+    </script>
+</body>
+</html>
+

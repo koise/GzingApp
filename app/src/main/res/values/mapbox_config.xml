@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 
+    Mapbox Access Token Configuration
+    
+    To use Mapbox services, you need to:
+    1. Sign up for a Mapbox account at https://www.mapbox.com/
+    2. Create a new access token in your Mapbox account
+    3. Replace "YOUR_MAPBOX_ACCESS_TOKEN" with your actual token
+    
+    For development, you can use a public token, but for production,
+    make sure to use a restricted token with appropriate scopes.
+    
+    Security Note: Never commit your actual access token to version control.
+    Consider using build variants or environment variables for production.
+    -->
+    
+    <string name="mapbox_access_token">pk.eyJ1Ijoia29pZGV2diIsImEiOiJjbWV0enJtMzgwMXJyMmpwcnJmOW1oMTdjIn0.1o2NeswIRqPVJ9NgFid9XA</string>
+    
+    <!-- Mapbox style URLs -->
+    <string name="mapbox_style_url">mapbox://styles/mapbox/streets-v12</string>
+    <string name="mapbox_style_url_satellite">mapbox://styles/mapbox/satellite-streets-v12</string>
+    <string name="mapbox_style_url_dark">mapbox://styles/mapbox/dark-v11</string>
+    <string name="mapbox_style_url_light">mapbox://styles/mapbox/light-v11</string>
+    
+    <!-- Default map settings -->
+    <string name="default_latitude">14.5995</string> <!-- Manila, Philippines -->
+    <string name="default_longitude">120.9842</string>
+    <string name="default_zoom">12.0</string>
+</resources>
+
+
+
+
+
+
+
+

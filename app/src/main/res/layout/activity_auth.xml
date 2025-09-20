@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#667eea">
+
+    <!-- Login Screen -->
+    <include
+        android:id="@+id/loginLayout"
+        layout="@layout/layout_login"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible" />
+
+    <!-- Signup Screen -->
+    <include
+        android:id="@+id/signupLayout"
+        layout="@layout/layout_signup"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+</FrameLayout>
+
+
+
+
+
+
+
