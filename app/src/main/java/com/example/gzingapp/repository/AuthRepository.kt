@@ -26,13 +26,27 @@ class AuthRepository(private val appSettings: AppSettings) {
                 val apiResponse = response.body()
                 if (apiResponse?.success == true && apiResponse.data != null) {
                     Log.d("AuthRepository", "Login successful for user: ${apiResponse.data.user.firstName} ${apiResponse.data.user.lastName}")
+                    
+                    // Save session data locally
+                    appSettings.saveUserData(
+                        apiResponse.data.user.id,
+                        apiResponse.data.user.email,
+                        apiResponse.data.user.firstName,
+                        apiResponse.data.user.lastName,
+                        apiResponse.data.user.username,
+                        apiResponse.data.user.role
+                    )
+                    
                     Result.success(apiResponse.data)
                 } else {
-                    Log.e("AuthRepository", "Login failed: ${apiResponse?.message}")
-                    Result.failure(Exception("Login failed: ${apiResponse?.message}"))
+                    val errorMessage = apiResponse?.message ?: "Login failed"
+                    Log.e("AuthRepository", "Login failed: $errorMessage")
+                    Result.failure(Exception(errorMessage))
                 }
             } else {
                 Log.e("AuthRepository", "Login HTTP error: ${response.code()} - ${response.message()}")
+                val errorBody = response.errorBody()?.string()
+                Log.e("AuthRepository", "Error response body: $errorBody")
                 handleErrorResponse(response)
             }
         } catch (e: IOException) {
@@ -56,6 +70,7 @@ class AuthRepository(private val appSettings: AppSettings) {
         username: String? = null
     ): Result<AuthResponse> = withContext(Dispatchers.IO) {
         try {
+            Log.d("AuthRepository", "Attempting signup for email: $email")
             val signupRequest = SignupRequest(
                 firstName = firstName,
                 lastName = lastName,
@@ -66,70 +81,123 @@ class AuthRepository(private val appSettings: AppSettings) {
             )
             val response = apiService.signup(signupRequest)
             
+            Log.d("AuthRepository", "Signup API response - Code: ${response.code()}, Success: ${response.isSuccessful}")
+            Log.d("AuthRepository", "Signup API response body: ${response.body()}")
+            
             if (response.isSuccessful) {
                 val apiResponse = response.body()
                 if (apiResponse?.success == true && apiResponse.data != null) {
+                    Log.d("AuthRepository", "Signup successful for user: ${apiResponse.data.user.firstName} ${apiResponse.data.user.lastName}")
+                    
+                    // Save session data locally
+                    appSettings.saveUserData(
+                        apiResponse.data.user.id,
+                        apiResponse.data.user.email,
+                        apiResponse.data.user.firstName,
+                        apiResponse.data.user.lastName,
+                        apiResponse.data.user.username,
+                        apiResponse.data.user.role
+                    )
+                    
                     Result.success(apiResponse.data)
                 } else {
-                    Result.failure(Exception("Signup failed: ${apiResponse?.message}"))
+                    val errorMessage = apiResponse?.message ?: "Signup failed"
+                    Log.e("AuthRepository", "Signup failed: $errorMessage")
+                    Result.failure(Exception(errorMessage))
                 }
             } else {
+                Log.e("AuthRepository", "Signup HTTP error: ${response.code()} - ${response.message()}")
+                val errorBody = response.errorBody()?.string()
+                Log.e("AuthRepository", "Error response body: $errorBody")
                 handleErrorResponse(response)
             }
         } catch (e: IOException) {
+            Log.e("AuthRepository", "Signup network error: ${e.message}")
             Result.failure(Exception("Network error: ${e.message}"))
         } catch (e: HttpException) {
+            Log.e("AuthRepository", "Signup HTTP error: ${e.code()} - ${e.message()}")
             Result.failure(Exception("HTTP error: ${e.code()} - ${e.message()}"))
         } catch (e: Exception) {
+            Log.e("AuthRepository", "Signup unexpected error: ${e.message}")
             Result.failure(Exception("Unexpected error: ${e.message}"))
         }
     }
     
     suspend fun logout(): Result<Unit> = withContext(Dispatchers.IO) {
         try {
-            // Clear local session data
+            Log.d("AuthRepository", "Attempting logout")
+            
+            // Call logout API endpoint
+            val response = apiService.logout()
+            
+            Log.d("AuthRepository", "Logout API response - Code: ${response.code()}, Success: ${response.isSuccessful}")
+            
+            // Clear local session data regardless of API response
             appSettings.clearUserSession()
             // Clear cookies as well
             RetrofitClient.clearCookies()
-            Result.success(Unit)
+            
+            if (response.isSuccessful) {
+                Log.d("AuthRepository", "Logout successful")
+                Result.success(Unit)
+            } else {
+                Log.w("AuthRepository", "Logout API failed but local session cleared")
+                Result.success(Unit) // Still consider it successful since we cleared local data
+            }
         } catch (e: Exception) {
-            Result.failure(Exception("Logout failed: ${e.message}"))
+            Log.e("AuthRepository", "Logout error: ${e.message}")
+            // Clear local session data even if API call fails
+            appSettings.clearUserSession()
+            RetrofitClient.clearCookies()
+            Result.success(Unit) // Consider it successful since we cleared local data
         }
     }
     
     suspend fun checkSession(): Result<SessionCheckResponse> = withContext(Dispatchers.IO) {
         try {
-            // Check if user data exists in SharedPreferences
-            val userId = appSettings.getUserId()
-            val userEmail = appSettings.getUserEmail()
+            Log.d("AuthRepository", "Checking session with API")
             
-            if (userId != null && userEmail != null) {
-                // User is logged in locally
-                val userData = User(
-                    id = userId,
-                    firstName = appSettings.getFirstName() ?: "",
-                    lastName = appSettings.getLastName() ?: "",
-                    email = userEmail,
-                    username = appSettings.getUsername() ?: "",
-                    role = appSettings.getUserRole() ?: "user",
-                    phoneNumber = null,
-                    status = "active",
-                    createdAt = "",
-                    lastLogin = null
-                )
-                
-                val sessionResponse = SessionCheckResponse(
-                    user = userData,
-                    sessionId = "local_session_${userId}",
-                    sessionActive = true
-                )
-                
-                Result.success(sessionResponse)
+            // Call the session check API endpoint
+            val response = apiService.checkSession()
+            
+            Log.d("AuthRepository", "Session check API response - Code: ${response.code()}, Success: ${response.isSuccessful}")
+            Log.d("AuthRepository", "Session check API response body: ${response.body()}")
+            
+            if (response.isSuccessful) {
+                val apiResponse = response.body()
+                if (apiResponse?.success == true && apiResponse.data != null) {
+                    Log.d("AuthRepository", "Session is valid for user: ${apiResponse.data.user.firstName} ${apiResponse.data.user.lastName}")
+                    
+                    // Update local session data with fresh data from server
+                    appSettings.saveUserData(
+                        apiResponse.data.user.id,
+                        apiResponse.data.user.email,
+                        apiResponse.data.user.firstName,
+                        apiResponse.data.user.lastName,
+                        apiResponse.data.user.username,
+                        apiResponse.data.user.role
+                    )
+                    
+                    Result.success(apiResponse.data)
+                } else {
+                    Log.e("AuthRepository", "Session check failed: ${apiResponse?.message}")
+                    // Clear local session if server says it's invalid
+                    appSettings.clearUserSession()
+                    Result.failure(Exception(apiResponse?.message ?: "Session expired"))
+                }
             } else {
-                // No local session found
-                Result.failure(Exception("No active session"))
+                Log.e("AuthRepository", "Session check HTTP error: ${response.code()} - ${response.message()}")
+                val errorBody = response.errorBody()?.string()
+                Log.e("AuthRepository", "Error response body: $errorBody")
+                
+                // Clear local session if server says it's invalid
+                appSettings.clearUserSession()
+                handleErrorResponse(response)
             }
         } catch (e: Exception) {
+            Log.e("AuthRepository", "Session check error: ${e.message}")
+            // Clear local session on any error
+            appSettings.clearUserSession()
             Result.failure(Exception("Session check failed: ${e.message}"))
         }
     }

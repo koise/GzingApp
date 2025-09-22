@@ -9,6 +9,10 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManager
+import javax.net.ssl.X509TrustManager
+import java.security.cert.X509Certificate
 
 object RetrofitClient {
     
@@ -36,13 +40,39 @@ object RetrofitClient {
         }
     }
     
-    private val okHttpClient = OkHttpClient.Builder()
-        .addInterceptor(loggingInterceptor)
-        .cookieJar(cookieJar)
-        .connectTimeout(10, TimeUnit.SECONDS)
-        .readTimeout(10, TimeUnit.SECONDS)
-        .writeTimeout(10, TimeUnit.SECONDS)
-        .build()
+    /**
+     * Creates an OkHttpClient that bypasses SSL certificate validation.
+     * WARNING: This is for development only. In production, use proper SSL certificates.
+     * This configuration allows connections to servers with self-signed or invalid certificates.
+     */
+    private fun createUnsafeOkHttpClient(): OkHttpClient {
+        try {
+            // Create a trust manager that accepts all certificates
+            val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
+                override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {}
+                override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {}
+                override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
+            })
+
+            // Install the all-trusting trust manager
+            val sslContext = SSLContext.getInstance("SSL")
+            sslContext.init(null, trustAllCerts, java.security.SecureRandom())
+
+            return OkHttpClient.Builder()
+                .addInterceptor(loggingInterceptor)
+                .cookieJar(cookieJar)
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(10, TimeUnit.SECONDS)
+                .writeTimeout(10, TimeUnit.SECONDS)
+                .sslSocketFactory(sslContext.socketFactory, trustAllCerts[0] as X509TrustManager)
+                .hostnameVerifier { _, _ -> true } // Bypass hostname verification
+                .build()
+        } catch (e: Exception) {
+            throw RuntimeException("Failed to create SSL client: ${e.message}", e)
+        }
+    }
+
+    private val okHttpClient = createUnsafeOkHttpClient()
     
     private val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)

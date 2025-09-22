@@ -47,7 +47,7 @@ class ProfileActivity : AppCompatActivity() {
     
     private var userProfile: UserProfile? = null
     private var sosContacts: List<SosContact> = emptyList()
-    private var userId: Int = 33 // Working user ID for testing
+    private var userId: Int = 0 // Will be set from authenticated user session
     private var isEditMode: Boolean = false
     
     companion object {
@@ -61,7 +61,20 @@ class ProfileActivity : AppCompatActivity() {
         // Initialize components
         appSettings = AppSettings(this)
         profileRepository = ProfileRepository(appSettings)
-        userId = appSettings.getUserId() ?: 33
+        userId = appSettings.getUserId() ?: 0
+        
+        // Check if user is authenticated
+        if (userId == 0) {
+            Log.e(TAG, "No authenticated user found, redirecting to login")
+            Toast.makeText(this, "Please log in to access your profile", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, AuthActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish()
+            return
+        }
+        
+        Log.d(TAG, "ProfileActivity initialized for user ID: $userId")
         
         // Initialize UI components
         initializeViews()
@@ -135,13 +148,14 @@ class ProfileActivity : AppCompatActivity() {
     }
     
     private fun loadUserData() {
-        // User ID is always available (defaults to 10 for testing)
+        Log.d(TAG, "Loading user data for user ID: $userId")
         
         lifecycleScope.launch {
             try {
-                // First try to fetch fresh data from API, fallback to local data
+                // First try to fetch fresh data from API
                 profileRepository.fetchUserProfileFromAPI(userId).fold(
                     onSuccess = { user ->
+                        Log.d(TAG, "Successfully fetched user profile from API: ${user.firstName} ${user.lastName}")
                         userProfile = UserProfile(
                             id = user.id,
                             firstName = user.firstName,
@@ -150,22 +164,33 @@ class ProfileActivity : AppCompatActivity() {
                             username = user.username,
                             phoneNumber = user.phoneNumber,
                             role = user.role,
-                            status = "active",
-                            notes = null,
-                            lastLogin = null,
-                            createdAt = "",
-                            updatedAt = "",
+                            status = user.status,
+                            notes = user.notes,
+                            lastLogin = user.lastLogin,
+                            createdAt = user.createdAt ?: "",
+                            updatedAt = user.updatedAt ?: "",
                             sosContactsCount = 0
                         )
-                        Log.d("ProfileActivity", "User profile created - Phone: ${user.phoneNumber}")
+                        Log.d(TAG, "User profile created from API - Phone: ${user.phoneNumber}")
                         updateProfileFields(userProfile!!)
-                        Log.d("ProfileActivity", "User profile loaded from API successfully: ${user.firstName} ${user.lastName}")
+                        
+                        // Update local storage with fresh data from API
+                        appSettings.saveUserData(
+                            userId = user.id,
+                            email = user.email,
+                            firstName = user.firstName,
+                            lastName = user.lastName,
+                            username = user.username,
+                            role = user.role,
+                            phoneNumber = user.phoneNumber
+                        )
                     },
                     onFailure = { apiError ->
-                        Log.w("ProfileActivity", "Failed to fetch from API, using local data: ${apiError.message}")
-                        // Fallback to local data
+                        Log.w(TAG, "Failed to fetch from API, using local data: ${apiError.message}")
+                        // Fallback to local data from SharedPreferences
                         profileRepository.getCurrentUserProfile().fold(
                             onSuccess = { user ->
+                                Log.d(TAG, "Using local user profile: ${user.firstName} ${user.lastName}")
                                 userProfile = UserProfile(
                                     id = user.id,
                                     firstName = user.firstName,
@@ -174,19 +199,18 @@ class ProfileActivity : AppCompatActivity() {
                                     username = user.username,
                                     phoneNumber = user.phoneNumber,
                                     role = user.role,
-                                    status = "active",
-                                    notes = null,
-                                    lastLogin = null,
-                                    createdAt = "",
-                                    updatedAt = "",
+                                    status = user.status,
+                                    notes = user.notes,
+                                    lastLogin = user.lastLogin,
+                                    createdAt = user.createdAt ?: "",
+                                    updatedAt = user.updatedAt ?: "",
                                     sosContactsCount = 0
                                 )
-                                Log.d("ProfileActivity", "User profile created from local - Phone: ${user.phoneNumber}")
+                                Log.d(TAG, "User profile created from local storage - Phone: ${user.phoneNumber}")
                                 updateProfileFields(userProfile!!)
-                                Log.d("ProfileActivity", "User profile loaded from local storage: ${user.firstName} ${user.lastName}")
                             },
                             onFailure = { localError ->
-                                Log.e("ProfileActivity", "Failed to load profile: ${localError.message}")
+                                Log.e(TAG, "Failed to load profile: ${localError.message}")
                                 Toast.makeText(this@ProfileActivity, 
                                     "Failed to load profile: ${localError.message}", 
                                     Toast.LENGTH_SHORT).show()
@@ -257,7 +281,7 @@ class ProfileActivity : AppCompatActivity() {
     
     
     private fun saveProfile() {
-        // User ID is always available (defaults to 10 for testing)
+        Log.d(TAG, "Saving profile for user ID: $userId")
         
         val firstName = etFirstName.text.toString().trim()
         val lastName = etLastName.text.toString().trim()
@@ -269,16 +293,10 @@ class ProfileActivity : AppCompatActivity() {
             return
         }
         
-        val updateRequest = UpdateProfileRequest(
-            firstName = firstName,
-            lastName = lastName,
-            phoneNumber = phoneNumber.ifBlank { null },
-            username = userProfile?.username,
-            notes = userProfile?.notes
-        )
-        
         lifecycleScope.launch {
             try {
+                Log.d(TAG, "Updating profile via API for user: $firstName $lastName")
+                
                 // Use the new prototype API for updating users
                 profileRepository.updateUserWithPrototypeAPI(
                     userId = userId,
@@ -290,13 +308,15 @@ class ProfileActivity : AppCompatActivity() {
                     role = userProfile?.role ?: "user"
                 ).fold(
                     onSuccess = { updatedUser ->
+                        Log.d(TAG, "Profile updated successfully via API")
+                        
                         // Save updated profile to SharedPreferences
                         appSettings.saveUserData(
                             userId = userId,
                             email = email,
                             firstName = firstName,
                             lastName = lastName,
-                            username = updatedUser.username ?: "",
+                            username = updatedUser.username ?: userProfile?.username ?: "",
                             role = updatedUser.role,
                             phoneNumber = phoneNumber.ifBlank { null }
                         )
@@ -316,12 +336,14 @@ class ProfileActivity : AppCompatActivity() {
                         disableEditMode()
                     },
                     onFailure = { error ->
+                        Log.e(TAG, "Failed to update profile via API: ${error.message}")
                         Toast.makeText(this@ProfileActivity, 
                             "Failed to update profile: ${error.message}", 
                             Toast.LENGTH_SHORT).show()
                     }
                 )
             } catch (e: Exception) {
+                Log.e(TAG, "Error updating profile: ${e.message}")
                 Toast.makeText(this@ProfileActivity, 
                     "Error updating profile: ${e.message}", 
                     Toast.LENGTH_SHORT).show()

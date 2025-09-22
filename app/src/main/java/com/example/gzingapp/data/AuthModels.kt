@@ -59,7 +59,7 @@ data class User(
     val status: String,
     
     @SerializedName("created_at")
-    val createdAt: String,
+    val createdAt: String?,
     
     @SerializedName("last_login")
     val lastLogin: String?

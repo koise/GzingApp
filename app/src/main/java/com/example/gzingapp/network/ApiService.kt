@@ -14,16 +14,16 @@ interface ApiService {
     suspend fun getApiInfo(): Response<ApiResponse<ApiInfoResponse>>
     
     // Authentication endpoints (session-based)
-    @POST("auth/login.php")
+    @POST("endpoints/auth/login.php")
     suspend fun login(@Body loginRequest: LoginRequest): Response<ApiResponse<AuthResponse>>
     
-    @POST("auth/signup.php")
+    @POST("endpoints/auth/signup.php")
     suspend fun signup(@Body signupRequest: SignupRequest): Response<ApiResponse<AuthResponse>>
     
-    @POST("auth/logout.php")
+    @POST("endpoints/auth/logout.php")
     suspend fun logout(): Response<ApiResponse<Any>>
     
-    @GET("auth/check.php")
+    @GET("endpoints/auth/check.php")
     suspend fun checkSession(): Response<ApiResponse<SessionCheckResponse>>
     
     // User endpoints
