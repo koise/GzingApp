@@ -1349,17 +1349,7 @@ class LandmarksActivity : AppCompatActivity() {
         // Update user location by redrawing layers
         redrawAllLayers()
         
-        // Auto-center camera on current location when first location is received
-        if (currentLocation != null) {
-            Log.d(TAG, "Auto-zooming to current location with zoom level 14.0")
-            mapView.mapboxMap.setCamera(
-                com.mapbox.maps.CameraOptions.Builder()
-                    .center(point)
-                    .zoom(14.0) // Good zoom level for Antipolo-Marikina area navigation
-                    .build()
-            )
-            Log.d(TAG, "Auto-zoom completed successfully")
-        }
+        // Auto-center functionality removed - user can manually center using FAB
     }
     
     private fun performReverseGeocoding(point: Point) {

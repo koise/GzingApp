@@ -1142,15 +1142,7 @@ class MapActivity : AppCompatActivity() {
         // Update user location by redrawing layers
         redrawAllLayers()
         
-        // Auto-center camera on current location when first location is received
-        if (currentLocation != null) {
-            mapView.mapboxMap.setCamera(
-                com.mapbox.maps.CameraOptions.Builder()
-                    .center(point)
-                    .zoom(15.0) // Good zoom level for city navigation
-                    .build()
-            )
-        }
+        // Auto-center functionality removed - user can manually center using FAB
 
         // If a pin exists, fetch and redraw the route from the refreshed location
         pinnedLocation?.let { pinPoint ->
@@ -1448,24 +1440,28 @@ class MapActivity : AppCompatActivity() {
         val km = distanceMeters / 1000.0
         val fare = when (selectedTransportMode.lowercase()) {
             "car", "driving" -> {
+                // First 5 km is 15 pesos, exceeding kilometers is 5 pesos per km
                 val baseFare = 15.0
-                val extraKm = if (km > 1.0) km - 1.0 else 0.0
+                val extraKm = if (km > 5.0) km - 5.0 else 0.0
                 baseFare + (extraKm * 5.0)
             }
             "walk", "walking" -> 0.0 // Walking is free
             "motor", "cycling", "bike" -> {
-                val baseFare = 8.0
-                val extraKm = if (km > 1.0) km - 1.0 else 0.0
-                baseFare + (extraKm * 3.0)
+                // First 5 km is 15 pesos, exceeding kilometers is 5 pesos per km
+                val baseFare = 15.0
+                val extraKm = if (km > 5.0) km - 5.0 else 0.0
+                baseFare + (extraKm * 5.0)
             }
             "public_transport", "transit" -> {
-                val baseFare = 12.0
-                val extraKm = if (km > 1.0) km - 1.0 else 0.0
-                baseFare + (extraKm * 2.0)
+                // First 5 km is 15 pesos, exceeding kilometers is 5 pesos per km
+                val baseFare = 15.0
+                val extraKm = if (km > 5.0) km - 5.0 else 0.0
+                baseFare + (extraKm * 5.0)
             }
             else -> {
+                // First 5 km is 15 pesos, exceeding kilometers is 5 pesos per km
                 val baseFare = 15.0
-                val extraKm = if (km > 1.0) km - 1.0 else 0.0
+                val extraKm = if (km > 5.0) km - 5.0 else 0.0
                 baseFare + (extraKm * 5.0)
             }
         }
@@ -2079,24 +2075,28 @@ class MapActivity : AppCompatActivity() {
     private fun calculateEstimatedFare(distanceKm: Double): Double {
         return when (selectedTransportMode.lowercase()) {
             "car", "driving" -> {
+                // First 5 km is 15 pesos, exceeding kilometers is 5 pesos per km
                 val baseFare = 15.0
-                val extraKm = if (distanceKm > 1.0) distanceKm - 1.0 else 0.0
+                val extraKm = if (distanceKm > 5.0) distanceKm - 5.0 else 0.0
                 baseFare + (extraKm * 5.0)
             }
             "walk", "walking" -> 0.0 // Walking is free
             "motor", "cycling", "bike" -> {
-                val baseFare = 8.0
-                val extraKm = if (distanceKm > 1.0) distanceKm - 1.0 else 0.0
-                baseFare + (extraKm * 3.0)
+                // First 5 km is 15 pesos, exceeding kilometers is 5 pesos per km
+                val baseFare = 15.0
+                val extraKm = if (distanceKm > 5.0) distanceKm - 5.0 else 0.0
+                baseFare + (extraKm * 5.0)
             }
             "public_transport", "transit" -> {
-                val baseFare = 12.0
-                val extraKm = if (distanceKm > 1.0) distanceKm - 1.0 else 0.0
-                baseFare + (extraKm * 2.0)
+                // First 5 km is 15 pesos, exceeding kilometers is 5 pesos per km
+                val baseFare = 15.0
+                val extraKm = if (distanceKm > 5.0) distanceKm - 5.0 else 0.0
+                baseFare + (extraKm * 5.0)
             }
             else -> {
+                // First 5 km is 15 pesos, exceeding kilometers is 5 pesos per km
                 val baseFare = 15.0
-                val extraKm = if (distanceKm > 1.0) distanceKm - 1.0 else 0.0
+                val extraKm = if (distanceKm > 5.0) distanceKm - 5.0 else 0.0
                 baseFare + (extraKm * 5.0)
             }
         }

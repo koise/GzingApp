@@ -1902,9 +1902,9 @@ class RoutesMapsActivity : AppCompatActivity() {
     }
     
     private fun calculateTotalFare(distanceKm: Double): Double {
-        // 15 pesos base for first 1 kilometer, 2 pesos for exceeding kilometers
+        // First 5 km is 15 pesos, exceeding kilometers is 5 pesos per km
         val base = 15.0
-        val extra = if (distanceKm > 1.0) (distanceKm - 1.0) * 2.0 else 0.0
+        val extra = if (distanceKm > 5.0) (distanceKm - 5.0) * 5.0 else 0.0
         return base + extra
     }
     
@@ -2702,8 +2702,9 @@ class RoutesMapsActivity : AppCompatActivity() {
     }
 
     private fun estimateFare(km: Double): Double {
+        // First 5 km is 15 pesos, exceeding kilometers is 5 pesos per km
         val base = 15.0
-        val extra = if (km > 1.0) (km - 1.0) * 5.0 else 0.0
+        val extra = if (km > 5.0) (km - 5.0) * 5.0 else 0.0
         return base + extra
     }
     
