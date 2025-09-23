@@ -1,6 +1,9 @@
 package com.example.gzingapp
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -9,8 +12,12 @@ import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.textfield.TextInputEditText
 import com.mapbox.geojson.Point
@@ -30,6 +37,11 @@ class PlacesActivity : AppCompatActivity() {
 
     private lateinit var resultsAdapter: PlaceResultsAdapter
     private var searchJob: Job? = null
+    
+    // Location services
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private var currentLocation: Point? = null
+    private lateinit var tvCurrentLocation: TextView
 
     // Search restricted to Philippines only (no specific city restrictions)
 
@@ -42,6 +54,7 @@ class PlacesActivity : AppCompatActivity() {
         setupSearchEngine()
         setupRecyclerView()
         setupSearchInput()
+        setupLocationServices()
     }
 
     private fun initializeViews() {
@@ -51,6 +64,10 @@ class PlacesActivity : AppCompatActivity() {
         tvResultsCount = findViewById(R.id.tvResultsCount)
         layoutEmptyState = findViewById(R.id.layoutEmptyState)
         progressBar = findViewById(R.id.progressBar)
+        tvCurrentLocation = findViewById(R.id.tvCurrentLocation)
+        
+        // Initialize location services
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
     }
 
     private fun setupToolbar() {
@@ -91,6 +108,86 @@ class PlacesActivity : AppCompatActivity() {
         
         // Test the API with a simple query on startup
         testApiConnection()
+    }
+    
+    private fun setupLocationServices() {
+        // Check location permissions
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) 
+            == PackageManager.PERMISSION_GRANTED) {
+            getCurrentLocation()
+        } else {
+            // Request location permission
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                1001
+            )
+        }
+    }
+    
+    private fun getCurrentLocation() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) 
+            == PackageManager.PERMISSION_GRANTED) {
+            fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+                location?.let {
+                    val point = Point.fromLngLat(it.longitude, it.latitude)
+                    currentLocation = point
+                    performReverseGeocodingForCurrentLocation(point)
+                } ?: run {
+                    tvCurrentLocation.text = "Location not available"
+                }
+            }
+        }
+    }
+    
+    private fun performReverseGeocodingForCurrentLocation(point: Point) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val address = getAddressFromCoordinates(point.latitude(), point.longitude())
+                withContext(Dispatchers.Main) {
+                    tvCurrentLocation.text = "📍 Current: $address"
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    tvCurrentLocation.text = "📍 Current: ${point.latitude()}, ${point.longitude()}"
+                }
+            }
+        }
+    }
+    
+    private suspend fun getAddressFromCoordinates(lat: Double, lng: Double): String {
+        return withContext(Dispatchers.IO) {
+            try {
+                val url = "https://nominatim.openstreetmap.org/reverse?format=json&lat=$lat&lon=$lng&zoom=18&addressdetails=1"
+                val connection = URL(url).openConnection()
+                connection.setRequestProperty("User-Agent", "GzingApp/1.0")
+                val response = connection.getInputStream().bufferedReader().use { it.readText() }
+                val json = JSONObject(response)
+                
+                val address = json.optJSONObject("address")
+                if (address != null) {
+                    val parts = mutableListOf<String>()
+                    
+                    // Try to get readable address components
+                    address.optString("house_number")?.let { if (it.isNotEmpty()) parts.add(it) }
+                    address.optString("road")?.let { if (it.isNotEmpty()) parts.add(it) }
+                    address.optString("suburb")?.let { if (it.isNotEmpty()) parts.add(it) }
+                    address.optString("city")?.let { if (it.isNotEmpty()) parts.add(it) }
+                    address.optString("state")?.let { if (it.isNotEmpty()) parts.add(it) }
+                    address.optString("country")?.let { if (it.isNotEmpty()) parts.add(it) }
+                    
+                    if (parts.isNotEmpty()) {
+                        parts.joinToString(", ")
+                    } else {
+                        json.optString("display_name", "Unknown location")
+                    }
+                } else {
+                    json.optString("display_name", "Unknown location")
+                }
+            } catch (e: Exception) {
+                "Unknown location"
+            }
+        }
     }
     
     private fun testApiConnection() {
@@ -934,6 +1031,19 @@ class PlacesActivity : AppCompatActivity() {
         }
         startActivity(intent)
         finish()
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            1001 -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    getCurrentLocation()
+                } else {
+                    tvCurrentLocation.text = "📍 Location permission denied"
+                }
+            }
+        }
     }
 
     override fun onDestroy() {

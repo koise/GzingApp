@@ -14,7 +14,6 @@ class AppSettings(private val context: Context) {
         private const val KEY_FIRST_LAUNCH = "first_launch"
         private const val KEY_APP_VERSION = "app_version"
         private const val KEY_LAST_LAUNCH = "last_launch"
-        private const val KEY_USER_TOKEN = "user_token"
         private const val KEY_USER_ID = "user_id"
         private const val KEY_USER_EMAIL = "user_email"
         private const val KEY_REMEMBER_LOGIN = "remember_login"
@@ -25,10 +24,23 @@ class AppSettings(private val context: Context) {
         private const val KEY_ROUTE_GEOFENCE_RADIUS = "route_geofence_radius"
         private const val KEY_GEOFENCE_NOTIFICATIONS = "geofence_notifications"
         
+        // Authentication keys
+        private const val KEY_AUTH_STATE = "auth_state"
+        private const val KEY_LOGIN_TIMESTAMP = "login_timestamp"
+        private const val KEY_SESSION_EXPIRY = "session_expiry"
+        private const val KEY_AUTO_LOGIN = "auto_login"
+        private const val KEY_BIOMETRIC_ENABLED = "biometric_enabled"
+        
         // Theme modes
         const val THEME_LIGHT = "light"
         const val THEME_DARK = "dark"
         const val THEME_SYSTEM = "system"
+        
+        // Authentication states
+        const val AUTH_STATE_LOGGED_OUT = "logged_out"
+        const val AUTH_STATE_LOGGED_IN = "logged_in"
+        const val AUTH_STATE_SESSION_EXPIRED = "session_expired"
+        const val AUTH_STATE_LOGGING_IN = "logging_in"
     }
     
     // Theme settings
@@ -74,18 +86,7 @@ class AppSettings(private val context: Context) {
         sharedPref.edit().putLong(KEY_LAST_LAUNCH, time).apply()
     }
     
-    // User session settings
-    fun getUserToken(): String? {
-        return sharedPref.getString(KEY_USER_TOKEN, null)
-    }
-    
-    fun setUserToken(token: String?) {
-        if (token != null) {
-            sharedPref.edit().putString(KEY_USER_TOKEN, token).apply()
-        } else {
-            sharedPref.edit().remove(KEY_USER_TOKEN).apply()
-        }
-    }
+    // User session settings (simplified without tokens)
     
     fun getUserId(): Int? {
         val userId = sharedPref.getInt(KEY_USER_ID, -1)
@@ -185,7 +186,6 @@ class AppSettings(private val context: Context) {
     // Clear user session
     fun clearUserSession() {
         sharedPref.edit()
-            .remove(KEY_USER_TOKEN)
             .remove(KEY_USER_ID)
             .remove(KEY_USER_EMAIL)
             .remove(KEY_REMEMBER_LOGIN)
@@ -202,10 +202,7 @@ class AppSettings(private val context: Context) {
         clearUserSession()
     }
     
-    // Alias for getUserToken (for compatibility)
-    fun getAuthToken(): String? {
-        return getUserToken()
-    }
+    // Authentication without tokens - simplified approach
     
     // Get user info as a data class
     fun getUserInfo(): UserInfo {
@@ -276,7 +273,242 @@ class AppSettings(private val context: Context) {
         }
     }
     
-    // Initialize app settings
+    // ===== AUTHENTICATION METHODS =====
+    
+    /**
+     * Check if user is currently logged in (simplified without tokens)
+     */
+    fun isUserLoggedIn(): Boolean {
+        val userId = getUserId()
+        val userEmail = getUserEmail()
+        val authState = getAuthState()
+        
+        return userId != null && userEmail != null && authState == AUTH_STATE_LOGGED_IN
+    }
+    
+    /**
+     * Get current authentication state
+     */
+    fun getAuthState(): String {
+        return sharedPref.getString(KEY_AUTH_STATE, AUTH_STATE_LOGGED_OUT) ?: AUTH_STATE_LOGGED_OUT
+    }
+    
+    /**
+     * Set authentication state
+     */
+    fun setAuthState(state: String) {
+        sharedPref.edit().putString(KEY_AUTH_STATE, state).apply()
+    }
+    
+    /**
+     * Get login timestamp
+     */
+    fun getLoginTimestamp(): Long {
+        return sharedPref.getLong(KEY_LOGIN_TIMESTAMP, 0L)
+    }
+    
+    /**
+     * Set login timestamp
+     */
+    fun setLoginTimestamp(timestamp: Long) {
+        sharedPref.edit().putLong(KEY_LOGIN_TIMESTAMP, timestamp).apply()
+    }
+    
+    /**
+     * Get session expiry time
+     */
+    fun getSessionExpiry(): Long {
+        return sharedPref.getLong(KEY_SESSION_EXPIRY, 0L)
+    }
+    
+    /**
+     * Set session expiry time (24 hours from now by default)
+     */
+    fun setSessionExpiry(expiryTime: Long = System.currentTimeMillis() + (24 * 60 * 60 * 1000)) {
+        sharedPref.edit().putLong(KEY_SESSION_EXPIRY, expiryTime).apply()
+    }
+    
+    /**
+     * Check if session is expired
+     */
+    fun isSessionExpired(): Boolean {
+        val expiryTime = getSessionExpiry()
+        return expiryTime > 0 && System.currentTimeMillis() > expiryTime
+    }
+    
+    /**
+     * Check if auto-login is enabled
+     */
+    fun isAutoLoginEnabled(): Boolean {
+        return sharedPref.getBoolean(KEY_AUTO_LOGIN, false)
+    }
+    
+    /**
+     * Set auto-login preference
+     */
+    fun setAutoLoginEnabled(enabled: Boolean) {
+        sharedPref.edit().putBoolean(KEY_AUTO_LOGIN, enabled).apply()
+    }
+    
+    /**
+     * Check if biometric authentication is enabled
+     */
+    fun isBiometricEnabled(): Boolean {
+        return sharedPref.getBoolean(KEY_BIOMETRIC_ENABLED, false)
+    }
+    
+    /**
+     * Set biometric authentication preference
+     */
+    fun setBiometricEnabled(enabled: Boolean) {
+        sharedPref.edit().putBoolean(KEY_BIOMETRIC_ENABLED, enabled).apply()
+    }
+    
+    /**
+     * Complete login process - saves all user data and sets auth state (simplified without tokens)
+     */
+    fun completeLogin(
+        userId: Int,
+        email: String,
+        firstName: String,
+        lastName: String,
+        username: String,
+        role: String,
+        phoneNumber: String? = null,
+        rememberLogin: Boolean = false
+    ) {
+        val currentTime = System.currentTimeMillis()
+        
+        // Save user data
+        saveUserData(userId, email, firstName, lastName, username, role, phoneNumber)
+        
+        // Set authentication state
+        setAuthState(AUTH_STATE_LOGGED_IN)
+        
+        // Set login timestamp
+        setLoginTimestamp(currentTime)
+        
+        // Set session expiry (24 hours from now)
+        setSessionExpiry(currentTime + (24 * 60 * 60 * 1000))
+        
+        // Set remember login preference
+        setRememberLogin(rememberLogin)
+        
+        // Set auto-login if remember is enabled
+        setAutoLoginEnabled(rememberLogin)
+    }
+    
+    /**
+     * Complete logout process - clears all user data and resets auth state
+     */
+    fun completeLogout() {
+        // Clear user session data
+        clearUserSession()
+        
+        // Reset authentication state
+        setAuthState(AUTH_STATE_LOGGED_OUT)
+        
+        // Clear timestamps
+        sharedPref.edit()
+            .remove(KEY_LOGIN_TIMESTAMP)
+            .remove(KEY_SESSION_EXPIRY)
+            .apply()
+    }
+    
+    /**
+     * Mark session as expired
+     */
+    fun markSessionExpired() {
+        setAuthState(AUTH_STATE_SESSION_EXPIRED)
+    }
+    
+    /**
+     * Validate current session
+     */
+    fun validateSession(): Boolean {
+        if (!isUserLoggedIn()) {
+            return false
+        }
+        
+        if (isSessionExpired()) {
+            markSessionExpired()
+            return false
+        }
+        
+        return true
+    }
+    
+    /**
+     * Get user session info (simplified without tokens)
+     */
+    fun getUserSession(): UserSession? {
+        if (!isUserLoggedIn()) {
+            return null
+        }
+        
+        return UserSession(
+            id = getUserId() ?: 0,
+            email = getUserEmail() ?: "",
+            firstName = getFirstName() ?: "",
+            lastName = getLastName() ?: "",
+            username = getUsername() ?: "",
+            role = getUserRole() ?: "user",
+            phoneNumber = getPhoneNumber(),
+            loginTime = getLoginTimestamp(),
+            sessionExpiry = getSessionExpiry()
+        )
+    }
+    
+    /**
+     * Check if user has specific role
+     */
+    fun hasRole(role: String): Boolean {
+        val userRole = getUserRole()
+        return userRole?.equals(role, ignoreCase = true) ?: false
+    }
+    
+    /**
+     * Check if user is admin
+     */
+    fun isAdmin(): Boolean {
+        return hasRole("admin")
+    }
+    
+    /**
+     * Get session duration in minutes
+     */
+    fun getSessionDurationMinutes(): Long {
+        val loginTime = getLoginTimestamp()
+        if (loginTime == 0L) return 0L
+        
+        return (System.currentTimeMillis() - loginTime) / (60 * 1000)
+    }
+    
+    /**
+     * Get remaining session time in minutes
+     */
+    fun getRemainingSessionMinutes(): Long {
+        val expiryTime = getSessionExpiry()
+        if (expiryTime == 0L) return 0L
+        
+        val remaining = expiryTime - System.currentTimeMillis()
+        return if (remaining > 0) remaining / (60 * 1000) else 0L
+    }
+    
+    /**
+     * Extend session by specified minutes
+     */
+    fun extendSession(minutes: Int = 60) {
+        val currentExpiry = getSessionExpiry()
+        if (currentExpiry > 0) {
+            val newExpiry = currentExpiry + (minutes * 60 * 1000L)
+            setSessionExpiry(newExpiry)
+        }
+    }
+    
+    /**
+     * Initialize app settings
+     */
     fun initializeAppSettings() {
         val currentTime = System.currentTimeMillis()
         
@@ -290,6 +522,11 @@ class AppSettings(private val context: Context) {
         
         // Apply saved theme mode
         applyThemeMode(getThemeMode())
+        
+        // Check session validity on app start
+        if (isUserLoggedIn() && isSessionExpired()) {
+            markSessionExpired()
+        }
     }
 }
 
@@ -300,4 +537,35 @@ data class UserInfo(
     val firstName: String,
     val lastName: String
 )
+
+// User session data class with additional session information (simplified without tokens)
+data class UserSession(
+    val id: Int,
+    val email: String,
+    val firstName: String,
+    val lastName: String,
+    val username: String,
+    val role: String,
+    val phoneNumber: String?,
+    val loginTime: Long,
+    val sessionExpiry: Long
+) {
+    val fullName: String
+        get() = "$firstName $lastName"
+    
+    val displayName: String
+        get() = if (firstName.isNotEmpty() && lastName.isNotEmpty()) fullName else email
+    
+    val isSessionValid: Boolean
+        get() = System.currentTimeMillis() < sessionExpiry
+    
+    val sessionDurationMinutes: Long
+        get() = if (loginTime > 0) (System.currentTimeMillis() - loginTime) / (60 * 1000) else 0L
+    
+    val remainingSessionMinutes: Long
+        get() = if (sessionExpiry > 0) {
+            val remaining = sessionExpiry - System.currentTimeMillis()
+            if (remaining > 0) remaining / (60 * 1000) else 0L
+        } else 0L
+}
 

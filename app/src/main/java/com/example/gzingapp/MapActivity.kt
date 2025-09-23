@@ -276,6 +276,9 @@ class MapActivity : AppCompatActivity() {
         // Start Navigation Button
         btnStartNavigation.setOnClickListener { toggleNavigationMode(true) }
         
+        // Update navigation button state
+        updateNavigationButtonState()
+        
         // Transport mode is selected via dialog on pin
         
         // Collapse/Expand Location Info
@@ -360,6 +363,18 @@ class MapActivity : AppCompatActivity() {
     private fun toggleLocationCard() { setCardCollapsed(!isCardCollapsed) }
     
     private fun toggleNavigationMode(enable: Boolean) {
+        // Check if user is trying to start navigation without a pinned location
+        if (enable && pinnedLocation == null) {
+            Toast.makeText(this, "Please pin a location first before starting navigation", Toast.LENGTH_LONG).show()
+            return
+        }
+        
+        // Check if user has a valid current location
+        if (enable && currentLocation == null) {
+            Toast.makeText(this, "Please wait for GPS location before starting navigation", Toast.LENGTH_LONG).show()
+            return
+        }
+        
         isNavigating = enable
         
         if (enable) {
@@ -833,6 +848,19 @@ class MapActivity : AppCompatActivity() {
         navHeaderName.text = "User #${userId ?: "Unknown"}"
     }
     
+    private fun updateNavigationButtonState() {
+        val canNavigate = pinnedLocation != null && currentLocation != null
+        
+        btnStartNavigation.isEnabled = canNavigate
+        btnStartNavigation.alpha = if (canNavigate) 1.0f else 0.5f
+        
+        if (!canNavigate) {
+            btnStartNavigation.text = if (pinnedLocation == null) "Pin a location first" else "Waiting for GPS..."
+        } else {
+            btnStartNavigation.text = if (isNavigating) "Stop Navigation" else "Start Navigation"
+        }
+    }
+    
     private fun logout() {
         // Clear user session
         val appSettings = com.example.gzingapp.utils.AppSettings(this)
@@ -857,12 +885,21 @@ class MapActivity : AppCompatActivity() {
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
                 locationResult.lastLocation?.let { location ->
-                    val point = Point.fromLngLat(location.longitude, location.latitude)
-                    updateUserLocation(point)
+                    Log.d("MapActivity", "Location update: ${location.latitude}, ${location.longitude}")
+                    Log.d("MapActivity", "Location accuracy: ${location.accuracy}m")
                     
-                    // Real-time proximity check for geofence
-                    if (isNavigating && pinnedLocation != null) {
-                        checkRealTimeProximity(point, pinnedLocation!!)
+                    // Accept any valid location (not just non-zero coordinates)
+                    if (location.latitude != 0.0 || location.longitude != 0.0) {
+                        val point = Point.fromLngLat(location.longitude, location.latitude)
+                        updateUserLocation(point)
+                        Log.d("MapActivity", "✅ Real-time GPS location updated: ${location.latitude}, ${location.longitude}")
+                        
+                        // Real-time proximity check for geofence
+                        if (isNavigating && pinnedLocation != null) {
+                            checkRealTimeProximity(point, pinnedLocation!!)
+                        }
+                    } else {
+                        Log.w("MapActivity", "Real-time location has zero coordinates")
                     }
                 }
             }
@@ -1078,23 +1115,34 @@ class MapActivity : AppCompatActivity() {
             return
         }
         
+        Log.d("MapActivity", "Requesting current location...")
+        
         // Get last known location first
         fusedLocationClient.lastLocation
             .addOnSuccessListener { location: Location? ->
                 if (location != null) {
-                    val point = Point.fromLngLat(location.longitude, location.latitude)
-                    updateUserLocation(point)
-                    performReverseGeocoding(point)
-                
+                    Log.d("MapActivity", "Last known location: ${location.latitude}, ${location.longitude}")
+                    Log.d("MapActivity", "Location accuracy: ${location.accuracy}m")
+                    Log.d("MapActivity", "Location time: ${java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date(location.time))}")
+                    
+                    // Accept any valid location (not just non-zero coordinates)
+                    if (location.latitude != 0.0 || location.longitude != 0.0) {
+                        val point = Point.fromLngLat(location.longitude, location.latitude)
+                        updateUserLocation(point)
+                        performReverseGeocoding(point)
+                        Log.d("MapActivity", "✅ GPS location captured: ${location.latitude}, ${location.longitude}")
+                    } else {
+                        Log.w("MapActivity", "Last known location has zero coordinates, will rely on real-time updates")
+                        showDefaultLocation()
+                    }
                 } else {
-                    // Location is null, show default location
+                    Log.w("MapActivity", "No last known location, will rely on real-time updates")
                     showDefaultLocation()
                 }
             }
-            .addOnFailureListener {
-                // Failed to get location, show default location
+            .addOnFailureListener { exception ->
+                Log.e("MapActivity", "Failed to get last known location", exception)
                 showDefaultLocation()
-                Toast.makeText(this, "Failed to get current location", Toast.LENGTH_SHORT).show()
             }
         
         // Start real-time location updates
@@ -1136,6 +1184,9 @@ class MapActivity : AppCompatActivity() {
     
     private fun updateUserLocation(point: Point) {
         currentLocation = point
+        
+        // Update navigation button state when current location changes
+        updateNavigationButtonState()
         
         if (!isMapStyleLoaded) return
         
@@ -1258,6 +1309,9 @@ class MapActivity : AppCompatActivity() {
         
         // Set new pinned location
         pinnedLocation = point
+        
+        // Update navigation button state when pin is set
+        updateNavigationButtonState()
         
         // Ask for transport mode
         showTransportModeDialog { mode ->
@@ -1708,6 +1762,9 @@ class MapActivity : AppCompatActivity() {
         if (pinnedLocation != null) {
             pinnedLocation = null
             
+            // Update navigation button state when pin is cleared
+            updateNavigationButtonState()
+            
             // Clear route
             routeCoordinates = null
             clearRoute()
@@ -1851,6 +1908,16 @@ class MapActivity : AppCompatActivity() {
         
         Log.d("MapActivity", "Showing SOS dialog for user ID: $userId")
         
+        // Get current location data
+        val currentLoc = currentLocation
+        val latitude = currentLoc?.latitude()
+        val longitude = currentLoc?.longitude()
+        val locationString = tvCurrentLocation.text?.toString() ?: "Location not available"
+        
+        Log.d("MapActivity", "SOS Dialog - Current location: $currentLoc")
+        Log.d("MapActivity", "SOS Dialog - Coordinates: $latitude, $longitude")
+        Log.d("MapActivity", "SOS Dialog - Location string: $locationString")
+        
         val sosDialog = com.example.gzingapp.ui.SosHelpDialog(
             context = this,
             onSosSent = {
@@ -1860,7 +1927,10 @@ class MapActivity : AppCompatActivity() {
             onDismiss = {
                 // Handle dialog dismissal
                 Log.d("SosDialog", "SOS dialog dismissed")
-            }
+            },
+            initialLatitude = latitude,
+            initialLongitude = longitude,
+            initialLocation = locationString
         )
         sosDialog.show()
     }

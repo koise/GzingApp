@@ -14,6 +14,26 @@
  * - contacts: Array of phone numbers to send SMS to
  */
 
+// Suppress all errors to prevent HTML output
+error_reporting(0);
+ini_set('display_errors', 0);
+
+// Set error handlers to return JSON only
+set_error_handler(function($severity, $message, $file, $line) {
+    // Log error but don't output HTML
+    error_log("PHP Error: $message in $file on line $line");
+    return true; // Don't execute PHP internal error handler
+});
+
+set_exception_handler(function($exception) {
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Server error: ' . $exception->getMessage()
+    ]);
+    exit();
+});
+
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
@@ -38,9 +58,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 // Include database configuration
 @include_once __DIR__ . '/../../config/database.php';
 
-// SMS Service Configuration
-$SMS_API_TOKEN = 'dO1YvHSMoFyHSV8FKoYl6kAx0ndKO8ToaxhgdRDE';
-$SMS_API_URL = 'https://api.philsms.com/send';
+// SMS Service Configuration - PhilSMS v3 API
+$SMS_API_TOKEN = '2817|YeLjWvNpqsNbV3QuqNum5em11G1vMhI3XS3kKrKH';
+$SMS_API_URL = 'https://app.philsms.com/api/v3/sms/send';
 
 try {
     // Get JSON input
@@ -53,7 +73,15 @@ try {
     // Validate required parameters
     $required_fields = ['user_id', 'latitude', 'longitude', 'contacts'];
     foreach ($required_fields as $field) {
-        if (!isset($input[$field]) || empty($input[$field])) {
+        if (!isset($input[$field])) {
+            throw new Exception("Missing required field: $field");
+        }
+        // Special handling for latitude/longitude - they can be 0.0
+        if ($field === 'latitude' || $field === 'longitude') {
+            if (!is_numeric($input[$field])) {
+                throw new Exception("Invalid $field: must be numeric");
+            }
+        } else if (empty($input[$field])) {
             throw new Exception("Missing required field: $field");
         }
     }
@@ -74,7 +102,7 @@ try {
     $location_info = getReverseGeocoding($latitude, $longitude);
     
     // Generate emergency message
-    $emergency_message = generateEmergencyMessage($latitude, $longitude, $location_info, $emergency_type, $custom_message);
+    $emergency_message = generateEmergencyMessage($user_id, $latitude, $longitude, $location_info, $emergency_type, $custom_message);
     
     // Send SMS to all contacts
     $results = [];
@@ -208,27 +236,79 @@ function formatAddress($data) {
 /**
  * Generate emergency message with location information
  */
-function generateEmergencyMessage($latitude, $longitude, $location_info, $emergency_type, $custom_message) {
+function generateEmergencyMessage($user_id, $latitude, $longitude, $location_info, $emergency_type, $custom_message) {
     $timestamp = date('Y-m-d H:i:s');
     $google_maps_link = "https://maps.google.com/maps?q=$latitude,$longitude";
     
-    $message = "🚨 EMERGENCY ALERT 🚨\n\n";
+    // Get user information from database - NO FALLBACKS
+    $user_info = getUserInfo($user_id);
+    
+    if (!$user_info || empty($user_info['name'])) {
+        throw new Exception("User information not found for user ID: $user_id");
+    }
+    
+    $user_name = $user_info['name'];
+    $user_phone = $user_info['phone'];
+    
+    $message = "EMERGENCY ALERT - $user_name needs immediate help!\n\n";
+    $message .= "User: $user_name\n";
+    $message .= "Phone: $user_phone\n";
+    $message .= "Location: " . $location_info['formatted_address'] . "\n";
+    $message .= "Time: $timestamp\n";
+    
+    $message .= "LOCATION COORDINATES:\n";
+    $message .= "Google Maps: $google_maps_link\n\n";
     
     if (!empty($custom_message)) {
         $message .= "Message: $custom_message\n\n";
     }
     
-    $message .= "📍 Location Details:\n";
-    $message .= "Address: " . $location_info['formatted_address'] . "\n";
-    $message .= "Coordinates: $latitude, $longitude\n";
-    $message .= "Google Maps: $google_maps_link\n\n";
-    
-    $message .= "⏰ Time: $timestamp\n";
-    $message .= "🚨 Emergency Type: " . ucfirst($emergency_type) . "\n\n";
-    
     $message .= "Please help immediately! This is an automated emergency message from GzingApp.";
     
     return $message;
+}
+
+/**
+ * Get user information from database - NO FALLBACKS
+ */
+function getUserInfo($user_id) {
+    try {
+        if (!class_exists('Database')) {
+            throw new Exception("Database class not found");
+        }
+        
+        $db = new Database();
+        $pdo = $db->getConnection();
+        
+        if (!$pdo) {
+            throw new Exception("Database connection failed");
+        }
+        
+        $stmt = $pdo->prepare("SELECT first_name, last_name, phone_number FROM users WHERE id = ?");
+        $stmt->execute([$user_id]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$user) {
+            throw new Exception("User not found with ID: $user_id");
+        }
+        
+        if (empty($user['first_name']) || empty($user['last_name'])) {
+            throw new Exception("User name is incomplete for ID: $user_id");
+        }
+        
+        if (empty($user['phone_number'])) {
+            throw new Exception("User phone number is missing for ID: $user_id");
+        }
+        
+        return [
+            'name' => trim($user['first_name'] . ' ' . $user['last_name']),
+            'phone' => $user['phone_number']
+        ];
+        
+    } catch (Exception $e) {
+        error_log("Failed to get user info: " . $e->getMessage());
+        throw $e; // Re-throw to prevent fallback
+    }
 }
 
 /**
@@ -268,24 +348,27 @@ function sendSMS($phone, $message) {
     global $SMS_API_TOKEN, $SMS_API_URL;
     
     try {
+        // PhilSMS v3 API format
         $data = [
-            'api_key' => $SMS_API_TOKEN,
-            'number' => $phone,
-            'message' => $message,
-            'sender_id' => 'GzingApp'
+            'recipient' => $phone,
+            'sender_id' => 'PhilSMS',
+            'type' => 'plain',
+            'message' => $message
         ];
         
         $options = [
             'http' => [
-                'header' => "Content-type: application/x-www-form-urlencoded\r\n",
+                'header' => "Authorization: Bearer $SMS_API_TOKEN\r\n" .
+                           "Content-Type: application/json\r\n" .
+                           "Accept: application/json\r\n",
                 'method' => 'POST',
-                'content' => http_build_query($data),
+                'content' => json_encode($data),
                 'timeout' => 30
             ]
         ];
         
         $context = stream_context_create($options);
-        $response = file_get_contents($SMS_API_URL, false, $context);
+        $response = @file_get_contents($SMS_API_URL, false, $context);
         
         if ($response === false) {
             throw new Exception('Failed to connect to SMS service');
@@ -297,7 +380,9 @@ function sendSMS($phone, $message) {
             return [
                 'success' => true,
                 'message' => 'SMS sent successfully',
-                'sms_id' => $result['sms_id'] ?? null
+                'uid' => $result['data']['uid'] ?? null,
+                'status' => $result['data']['status'] ?? 'sent',
+                'cost' => $result['data']['cost'] ?? '0.00'
             ];
         } else {
             return [
@@ -322,7 +407,7 @@ function logEmergencySMS($user_id, $latitude, $longitude, $emergency_type, $cont
         // Try to connect to database
         if (class_exists('Database')) {
             $db = new Database();
-            $pdo = $db->connect();
+            $pdo = $db->getConnection();
             
             if ($pdo) {
                 $stmt = $pdo->prepare("

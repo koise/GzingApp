@@ -87,6 +87,19 @@
 
                     </com.google.android.material.textfield.TextInputLayout>
 
+                    <!-- Current Location Info -->
+                    <TextView
+                        android:id="@+id/tvCurrentLocation"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="📍 Getting current location..."
+                        android:textSize="12sp"
+                        android:textColor="@color/text_secondary"
+                        android:layout_marginTop="8dp"
+                        android:drawableStart="@drawable/ic_location"
+                        android:drawablePadding="8dp"
+                        android:gravity="center_vertical" />
+
                     <!-- Search Info -->
                     <TextView
                         android:layout_width="match_parent"
@@ -94,8 +107,8 @@
                         android:text="Searching within Antipolo and Marikina City"
                         android:textSize="12sp"
                         android:textColor="@color/text_secondary"
-                        android:layout_marginTop="8dp"
-                        android:drawableStart="@drawable/ic_location"
+                        android:layout_marginTop="4dp"
+                        android:drawableStart="@drawable/ic_search"
                         android:drawablePadding="8dp"
                         android:gravity="center_vertical" />
 

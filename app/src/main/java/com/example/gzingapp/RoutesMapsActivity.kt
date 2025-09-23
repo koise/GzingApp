@@ -66,6 +66,8 @@ import android.widget.RatingBar
 import com.example.gzingapp.repository.NavigationRouteRepository
 import com.example.gzingapp.data.CreateNavigationRouteRequest
 import kotlinx.coroutines.withContext
+import org.json.JSONObject
+import java.net.URL
 
 class RoutesMapsActivity : AppCompatActivity() {
     
@@ -353,6 +355,11 @@ class RoutesMapsActivity : AppCompatActivity() {
         currentLng = intent.getDoubleExtra("current_lng", 0.0)
         val currentPinName = intent.getStringExtra("current_pin_name") ?: ""
         
+        // Perform reverse geocoding for current location if available
+        if (currentLat != 0.0 && currentLng != 0.0) {
+            performReverseGeocodingForCurrentLocation()
+        }
+        
         // Get destination (if specified)
         endLat = intent.getDoubleExtra("end_lat", 0.0)
         endLng = intent.getDoubleExtra("end_lng", 0.0)
@@ -586,9 +593,20 @@ class RoutesMapsActivity : AppCompatActivity() {
         fusedLocationClient.lastLocation
             .addOnSuccessListener { location ->
                 if (location != null) {
-                    currentLat = location.latitude
-                    currentLng = location.longitude
-                    Log.d(TAG, "Device current location: $currentLat, $currentLng")
+                    Log.d(TAG, "Device location: ${location.latitude}, ${location.longitude}")
+                    Log.d(TAG, "Location accuracy: ${location.accuracy}m")
+                    
+                    // Accept any valid location (not just non-zero coordinates)
+                    if (location.latitude != 0.0 || location.longitude != 0.0) {
+                        currentLat = location.latitude
+                        currentLng = location.longitude
+                        Log.d(TAG, "✅ Device current location captured: $currentLat, $currentLng")
+                        
+                        // Perform reverse geocoding for device location
+                        performReverseGeocodingForCurrentLocation()
+                    } else {
+                        Log.w(TAG, "Device location has zero coordinates")
+                    }
                 } else {
                     Log.d(TAG, "No device location available")
                 }
@@ -3231,7 +3249,14 @@ class RoutesMapsActivity : AppCompatActivity() {
             val location = locationResult.lastLocation ?: return
             lastKnownLocation = location
             
+            // Update current location coordinates
+            currentLat = location.latitude
+            currentLng = location.longitude
+            
             Log.d(TAG, "Navigation location update: ${location.latitude}, ${location.longitude}")
+            
+            // Perform reverse geocoding for updated location
+            performReverseGeocodingForCurrentLocation()
             
             // Note: Using Mapbox built-in location puck, no custom location marker update needed
             
@@ -3681,6 +3706,14 @@ class RoutesMapsActivity : AppCompatActivity() {
         
         Log.d("RoutesMapsActivity", "Showing SOS dialog for user ID: $userId")
         
+        // Get current location data
+        val latitude = currentLat
+        val longitude = currentLng
+        val locationString = tvCurrentToWaypoint.text?.toString() ?: "Location not available"
+        
+        Log.d("RoutesMapsActivity", "SOS Dialog - Current coordinates: $latitude, $longitude")
+        Log.d("RoutesMapsActivity", "SOS Dialog - Location string: $locationString")
+        
         val sosDialog = com.example.gzingapp.ui.SosHelpDialog(
             context = this,
             onSosSent = {
@@ -3690,7 +3723,10 @@ class RoutesMapsActivity : AppCompatActivity() {
             onDismiss = {
                 // Handle dialog dismissal
                 Log.d("SosDialog", "SOS dialog dismissed")
-            }
+            },
+            initialLatitude = latitude,
+            initialLongitude = longitude,
+            initialLocation = locationString
         )
         sosDialog.show()
     }
@@ -3735,5 +3771,92 @@ class RoutesMapsActivity : AppCompatActivity() {
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
         finish()
+    }
+    
+    // ==================== REVERSE GEOCODING METHODS ====================
+    
+    private fun performReverseGeocodingForCurrentLocation() {
+        if (currentLat == 0.0 && currentLng == 0.0) {
+            Log.d(TAG, "No current location available for reverse geocoding")
+            return
+        }
+        
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val address = getAddressFromCoordinates(currentLat, currentLng)
+                withContext(Dispatchers.Main) {
+                    updateCurrentLocationDisplay(address)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error in reverse geocoding for current location", e)
+                withContext(Dispatchers.Main) {
+                    val fallback = "Current Location: ${String.format("%.4f, %.4f", currentLat, currentLng)}"
+                    updateCurrentLocationDisplay(fallback)
+                }
+            }
+        }
+    }
+    
+    private suspend fun getAddressFromCoordinates(lat: Double, lng: Double): String {
+        Log.d(TAG, "=== GET ADDRESS FROM COORDINATES ===")
+        Log.d(TAG, "Input coordinates: Lat=$lat, Lng=$lng")
+        Log.d(TAG, "Using OpenStreetMap Nominatim API for reverse geocoding")
+        
+        return withContext(Dispatchers.IO) {
+            try {
+                Log.d(TAG, "Starting reverse geocoding API call")
+                // Using OpenStreetMap Nominatim API for reverse geocoding (free)
+                val url = "https://nominatim.openstreetmap.org/reverse?format=json&lat=$lat&lon=$lng&zoom=18&addressdetails=1"
+                Log.d(TAG, "Reverse geocoding URL: $url")
+                val connection = URL(url).openConnection()
+                connection.setRequestProperty("User-Agent", "GzingApp/1.0")
+                Log.d(TAG, "Making HTTP request to Nominatim API")
+                
+                val response = connection.getInputStream().bufferedReader().use { it.readText() }
+                Log.d(TAG, "Received response from Nominatim API")
+                Log.d(TAG, "Response length: ${response.length} characters")
+                val jsonObject = JSONObject(response)
+                Log.d(TAG, "Parsed JSON response successfully")
+                
+                val displayName = jsonObject.optString("display_name", "")
+                Log.d(TAG, "Display name from API: $displayName")
+                val address = jsonObject.optJSONObject("address")
+                Log.d(TAG, "Address object from API: $address")
+                
+                if (displayName.isNotEmpty()) {
+                    Log.d(TAG, "Display name is not empty, formatting address")
+                    // Format the address nicely
+                    val parts = displayName.split(", ")
+                    Log.d(TAG, "Address parts count: ${parts.size}")
+                    Log.d(TAG, "Address parts: $parts")
+                    if (parts.size >= 3) {
+                        val formattedAddress = "${parts[0]}, ${parts[1]}, ${parts[2]}"
+                        Log.d(TAG, "Formatted address: $formattedAddress")
+                        formattedAddress
+                    } else {
+                        Log.d(TAG, "Using full display name: $displayName")
+                        displayName
+                    }
+                } else {
+                    Log.w(TAG, "Display name is empty, using coordinates")
+                    "Location: $lat, $lng"
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error in reverse geocoding", e)
+                Log.w(TAG, "Using fallback coordinates: $lat, $lng")
+                "Location: $lat, $lng"
+            }
+        }
+    }
+    
+    private fun updateCurrentLocationDisplay(address: String) {
+        try {
+            // Update the current location display in the routes info card
+            val currentLocationText = "Current Location: $address"
+            tvCurrentToWaypoint.text = currentLocationText
+            Log.d(TAG, "Updated current location display: $currentLocationText")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error updating current location display", e)
+        }
     }
 }

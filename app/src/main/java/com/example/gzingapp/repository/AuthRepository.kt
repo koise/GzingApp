@@ -27,14 +27,15 @@ class AuthRepository(private val appSettings: AppSettings) {
                 if (apiResponse?.success == true && apiResponse.data != null) {
                     Log.d("AuthRepository", "Login successful for user: ${apiResponse.data.user.firstName} ${apiResponse.data.user.lastName}")
                     
-                    // Save session data locally
-                    appSettings.saveUserData(
-                        apiResponse.data.user.id,
-                        apiResponse.data.user.email,
-                        apiResponse.data.user.firstName,
-                        apiResponse.data.user.lastName,
-                        apiResponse.data.user.username,
-                        apiResponse.data.user.role
+                    // Complete login process with all user data
+                    appSettings.completeLogin(
+                        userId = apiResponse.data.user.id,
+                        email = apiResponse.data.user.email,
+                        firstName = apiResponse.data.user.firstName,
+                        lastName = apiResponse.data.user.lastName,
+                        username = apiResponse.data.user.username,
+                        role = apiResponse.data.user.role,
+                        rememberLogin = false
                     )
                     
                     Result.success(apiResponse.data)
@@ -169,13 +170,14 @@ class AuthRepository(private val appSettings: AppSettings) {
                     Log.d("AuthRepository", "Session is valid for user: ${apiResponse.data.user.firstName} ${apiResponse.data.user.lastName}")
                     
                     // Update local session data with fresh data from server
-                    appSettings.saveUserData(
-                        apiResponse.data.user.id,
-                        apiResponse.data.user.email,
-                        apiResponse.data.user.firstName,
-                        apiResponse.data.user.lastName,
-                        apiResponse.data.user.username,
-                        apiResponse.data.user.role
+                    appSettings.completeLogin(
+                        userId = apiResponse.data.user.id,
+                        email = apiResponse.data.user.email,
+                        firstName = apiResponse.data.user.firstName,
+                        lastName = apiResponse.data.user.lastName,
+                        username = apiResponse.data.user.username,
+                        role = apiResponse.data.user.role,
+                        rememberLogin = false
                     )
                     
                     Result.success(apiResponse.data)

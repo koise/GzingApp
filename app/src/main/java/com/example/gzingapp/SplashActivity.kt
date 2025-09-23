@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.Observer
 import com.example.gzingapp.repository.ApiRepository
 import com.example.gzingapp.repository.AuthRepository
 import com.example.gzingapp.network.RetrofitClient
@@ -129,51 +130,31 @@ class SplashActivity : AppCompatActivity() {
         // Load user preferences using AppSettings
         val themeMode = appSettings.getThemeMode()
         val isFirstLaunch = appSettings.isFirstLaunch()
-        val userToken = appSettings.getUserToken()
+        val isUserLoggedIn = appSettings.isUserLoggedIn()
+        val userId = appSettings.getUserId()
+        val userEmail = appSettings.getUserEmail()
         
         Log.d(TAG, "User preferences loaded:")
         Log.d(TAG, "- Theme mode: $themeMode")
         Log.d(TAG, "- First launch: $isFirstLaunch")
-        Log.d(TAG, "- User logged in: ${userToken != null}")
+        Log.d(TAG, "- User logged in: $isUserLoggedIn")
+        Log.d(TAG, "- User ID: $userId")
+        Log.d(TAG, "- User email: $userEmail")
     }
     
     private fun navigateToMainActivity() {
         Handler(Looper.getMainLooper()).postDelayed({
-            // Check session validity
-            lifecycleScope.launch {
-                try {
-                    val sessionResult = authRepository.checkSession()
-                    if (sessionResult.isSuccess) {
-                        val sessionData = sessionResult.getOrNull()
-                        if (sessionData?.sessionActive == true) {
-                            // Session is valid, save user data and go to main activity
-                            appSettings.saveUserData(
-                                sessionData.user.id,
-                                sessionData.user.email,
-                                sessionData.user.firstName,
-                                sessionData.user.lastName,
-                                sessionData.user.username,
-                                sessionData.user.role
-                            )
-                            Log.d(TAG, "Valid session found, navigating to MapActivity")
-                            startActivity(Intent(this@SplashActivity, MapActivity::class.java))
-                        } else {
-                            // Session is invalid, go to auth
-                            Log.d(TAG, "No valid session, navigating to AuthActivity")
-                            startActivity(Intent(this@SplashActivity, AuthActivity::class.java))
-                        }
-                    } else {
-                        // Session check failed, go to auth
-                        Log.d(TAG, "Session check failed, navigating to AuthActivity")
-                        startActivity(Intent(this@SplashActivity, AuthActivity::class.java))
-                    }
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error checking session: ${e.message}")
-                    // On error, go to auth
-                    startActivity(Intent(this@SplashActivity, AuthActivity::class.java))
-                }
-                finish()
+            // Check if user is logged in using simplified authentication
+            if (appSettings.isUserLoggedIn() && appSettings.validateSession()) {
+                // User is logged in and session is valid, go to main activity
+                Log.d(TAG, "User is logged in with valid session, navigating to MapActivity")
+                startActivity(Intent(this@SplashActivity, MapActivity::class.java))
+            } else {
+                // User is not logged in or session expired, go to auth
+                Log.d(TAG, "User not logged in or session expired, navigating to AuthActivity")
+                startActivity(Intent(this@SplashActivity, AuthActivity::class.java))
             }
+            finish()
         }, 1000) // Reduced delay since we're already doing initialization
     }
     

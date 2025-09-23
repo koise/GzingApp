@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -35,7 +36,10 @@ import kotlinx.coroutines.isActive
 class SosHelpDialog(
     private val context: Context,
     private val onSosSent: (() -> Unit)? = null,
-    private val onDismiss: (() -> Unit)? = null
+    private val onDismiss: (() -> Unit)? = null,
+    private val initialLatitude: Double? = null,
+    private val initialLongitude: Double? = null,
+    private val initialLocation: String? = null
 ) : Dialog(context) {
     
     private lateinit var tvCurrentLocation: TextView
@@ -53,6 +57,8 @@ class SosHelpDialog(
     
     private var sosContacts: List<SosContact> = emptyList()
     private var currentLocation: String? = null
+    private var currentLatitude: Double? = null
+    private var currentLongitude: Double? = null
     
     // Vibration control
     private var vibrator: Vibrator? = null
@@ -84,8 +90,18 @@ class SosHelpDialog(
         // Load SOS contacts
         loadSosContacts()
         
-        // Get current location
-        getCurrentLocation()
+        // Use initial coordinates if provided, otherwise get current location
+        if (initialLatitude != null && initialLongitude != null) {
+            currentLatitude = initialLatitude
+            currentLongitude = initialLongitude
+            currentLocation = initialLocation ?: "${initialLatitude}, ${initialLongitude}"
+            tvCurrentLocation.text = "Current Location: ${String.format("%.4f, %.4f", initialLatitude, initialLongitude)}"
+            Log.d(TAG, "Using provided coordinates: $currentLatitude, $currentLongitude")
+            Log.d(TAG, "Provided location: $currentLocation")
+        } else {
+            // Get current location
+            getCurrentLocation()
+        }
     }
     
     private fun initializeViews() {
@@ -222,14 +238,104 @@ class SosHelpDialog(
             return
         }
         
+        Log.d(TAG, "Requesting current location...")
+        
+        // First try to get last known location
         fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
             if (location != null) {
-                currentLocation = "${location.latitude}, ${location.longitude}"
-                tvCurrentLocation.text = "Current Location: ${String.format("%.4f, %.4f", location.latitude, location.longitude)}"
+                Log.d(TAG, "Last known location: ${location.latitude}, ${location.longitude}")
+                Log.d(TAG, "Location accuracy: ${location.accuracy}m")
+                Log.d(TAG, "Location time: ${java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date(location.time))}")
+                
+                // Accept any valid location (not just non-zero coordinates)
+                if (location.latitude != 0.0 || location.longitude != 0.0) {
+                    currentLatitude = location.latitude
+                    currentLongitude = location.longitude
+                    currentLocation = "${location.latitude}, ${location.longitude}"
+                    tvCurrentLocation.text = "Current Location: ${String.format("%.4f, %.4f", location.latitude, location.longitude)}"
+                    Log.d(TAG, "✅ GPS location captured: $currentLatitude, $currentLongitude")
+                } else {
+                    Log.w(TAG, "Last known location has zero coordinates, requesting fresh location...")
+                    requestFreshLocation()
+                }
             } else {
-                tvCurrentLocation.text = "Current Location: Unable to determine"
+                Log.w(TAG, "No last known location, requesting fresh location...")
+                requestFreshLocation()
             }
-        }.addOnFailureListener {
+        }.addOnFailureListener { exception ->
+            Log.e(TAG, "Failed to get last known location", exception)
+            requestFreshLocation()
+        }
+    }
+    
+    private fun requestFreshLocation() {
+        Log.d(TAG, "Requesting fresh GPS location...")
+        
+        val locationRequest = com.google.android.gms.location.LocationRequest.Builder(
+            com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY,
+            10000L // 10 seconds timeout
+        ).apply {
+            setMinUpdateIntervalMillis(1000L)
+            setMaxUpdateDelayMillis(15000L)
+        }.build()
+        
+        val locationCallback = object : com.google.android.gms.location.LocationCallback() {
+            override fun onLocationResult(locationResult: com.google.android.gms.location.LocationResult) {
+                locationResult.lastLocation?.let { location ->
+                    Log.d(TAG, "Fresh location received: ${location.latitude}, ${location.longitude}")
+                    Log.d(TAG, "Location accuracy: ${location.accuracy}m")
+                    
+                    // Accept any valid location
+                    if (location.latitude != 0.0 || location.longitude != 0.0) {
+                        currentLatitude = location.latitude
+                        currentLongitude = location.longitude
+                        currentLocation = "${location.latitude}, ${location.longitude}"
+                        tvCurrentLocation.text = "Current Location: ${String.format("%.4f, %.4f", location.latitude, location.longitude)}"
+                        Log.d(TAG, "✅ Fresh GPS location captured: $currentLatitude, $currentLongitude")
+                        
+                        // Stop location updates after getting one good location
+                        fusedLocationClient.removeLocationUpdates(this)
+                    } else {
+                        Log.w(TAG, "Fresh location has zero coordinates")
+                        currentLatitude = null
+                        currentLongitude = null
+                        tvCurrentLocation.text = "Current Location: GPS coordinates invalid"
+                    }
+                } ?: run {
+                    Log.w(TAG, "No location in fresh location result")
+                    currentLatitude = null
+                    currentLongitude = null
+                    tvCurrentLocation.text = "Current Location: GPS not available"
+                }
+            }
+        }
+        
+        try {
+            fusedLocationClient.requestLocationUpdates(
+                locationRequest,
+                locationCallback,
+                android.os.Looper.getMainLooper()
+            )
+            
+            // Stop location updates after 15 seconds to prevent battery drain
+            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                try {
+                    fusedLocationClient.removeLocationUpdates(locationCallback)
+                    Log.d(TAG, "Location updates stopped after timeout")
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error stopping location updates", e)
+                }
+            }, 15000)
+            
+        } catch (e: SecurityException) {
+            Log.e(TAG, "Security exception requesting location updates", e)
+            currentLatitude = null
+            currentLongitude = null
+            tvCurrentLocation.text = "Current Location: Permission denied"
+        } catch (e: Exception) {
+            Log.e(TAG, "Exception requesting location updates", e)
+            currentLatitude = null
+            currentLongitude = null
             tvCurrentLocation.text = "Current Location: Error getting location"
         }
     }
@@ -245,8 +351,19 @@ class SosHelpDialog(
         
         CoroutineScope(Dispatchers.Main).launch {
             try {
+                Log.d(TAG, "Sending emergency SMS with:")
+                Log.d(TAG, "Contacts: ${sosContacts.size}")
+                Log.d(TAG, "Current Location: $currentLocation")
+                Log.d(TAG, "Latitude: $currentLatitude")
+                Log.d(TAG, "Longitude: $currentLongitude")
+                
                 val result = withContext(Dispatchers.IO) {
-                    sosSmsService.sendEmergencySms(sosContacts, currentLocation)
+                    sosSmsService.sendEmergencySms(
+                        contacts = sosContacts, 
+                        currentLocation = currentLocation,
+                        latitude = currentLatitude,
+                        longitude = currentLongitude
+                    )
                 }
                 
                 if (result.isSuccess) {

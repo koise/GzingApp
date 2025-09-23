@@ -7,6 +7,7 @@ import com.example.gzingapp.data.SosSmsRequest
 import com.example.gzingapp.data.SosSmsResponse
 import com.example.gzingapp.network.ApiService
 import com.example.gzingapp.network.RetrofitClient
+import com.example.gzingapp.service.EmergencySMSService
 import com.example.gzingapp.utils.AppSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -16,6 +17,7 @@ class SosSmsService(private val context: Context) {
     
     private val apiService: ApiService = RetrofitClient.apiService
     private val appSettings = AppSettings(context)
+    private val emergencySMSService = EmergencySMSService(context)
     
     companion object {
         private const val TAG = "SosSmsService"
@@ -26,31 +28,55 @@ class SosSmsService(private val context: Context) {
      */
     suspend fun sendEmergencySms(
         contacts: List<SosContact>,
-        currentLocation: String? = null
+        currentLocation: String? = null,
+        latitude: Double? = null,
+        longitude: Double? = null
     ): Result<SosSmsResponse> = withContext(Dispatchers.IO) {
         try {
             val phoneNumbers = contacts.map { it.phoneNumber }
-            val message = buildEmergencyMessage(currentLocation)
-            
-            val request = SosSmsRequest(
-                phoneNumbers = phoneNumbers,
-                message = message
-            )
             
             Log.d(TAG, "Sending emergency SMS to ${phoneNumbers.size} contacts")
-            Log.d(TAG, "Message: $message")
+            Log.d(TAG, "Phone numbers: ${phoneNumbers.joinToString(", ")}")
             
-            // SMS functionality not available in current API
-            // val response: Response<SosSmsResponse> = apiService.sendBulkSms(request)
+            // Use EmergencySMSService to send SMS with location
+            val result = if (latitude != null && longitude != null && (latitude != 0.0 || longitude != 0.0)) {
+                Log.d(TAG, "Using GPS coordinates: $latitude, $longitude")
+                emergencySMSService.sendEmergencySMS(
+                    latitude = latitude,
+                    longitude = longitude,
+                    emergencyType = "emergency",
+                    customMessage = currentLocation ?: "",
+                    contacts = phoneNumbers
+                )
+            } else {
+                Log.w(TAG, "GPS location not available, using fallback message")
+                // Use fallback message instead of 0.0 coordinates
+                emergencySMSService.sendEmergencySMS(
+                    latitude = 0.0,
+                    longitude = 0.0,
+                    emergencyType = "emergency",
+                    customMessage = "GPS location unavailable. Please check my last known location or contact me directly.",
+                    contacts = phoneNumbers
+                )
+            }
             
-            // SMS functionality not available in current API
-            // Return a mock success response for now
-            Log.d(TAG, "SMS functionality disabled - returning mock success")
-            Result.success(SosSmsResponse(
-                status = "success",
-                message = "SMS functionality not available in current API",
-                data = null
-            ))
+            result.fold(
+                onSuccess = { response ->
+                    Log.d(TAG, "Emergency SMS sent successfully")
+                    Log.d(TAG, "Success count: ${response.data?.successfulSends}")
+                    Log.d(TAG, "Failure count: ${response.data?.failedSends}")
+                    
+                    Result.success(SosSmsResponse(
+                        status = if (response.success) "success" else "error",
+                        message = response.message,
+                        data = null
+                    ))
+                },
+                onFailure = { error ->
+                    Log.e(TAG, "Error sending emergency SMS", error)
+                    Result.failure(error)
+                }
+            )
             
         } catch (e: Exception) {
             Log.e(TAG, "Error sending emergency SMS", e)
@@ -88,23 +114,31 @@ class SosSmsService(private val context: Context) {
      */
     suspend fun sendTestSms(phoneNumber: String): Result<SosSmsResponse> = withContext(Dispatchers.IO) {
         try {
-            val message = "Test message from GzingApp SOS system. This is a test to verify SMS functionality."
-            
-            val request = SosSmsRequest(
-                phoneNumbers = listOf(phoneNumber),
-                message = message
-            )
-            
             Log.d(TAG, "Sending test SMS to $phoneNumber")
             
-            // SMS functionality not available in current API
-            // Return a mock success response for now
-            Log.d(TAG, "SMS functionality disabled - returning mock success")
-            Result.success(SosSmsResponse(
-                status = "success",
-                message = "SMS functionality not available in current API",
-                data = null
-            ))
+            // Use EmergencySMSService to send test SMS
+            val result = emergencySMSService.sendEmergencySMS(
+                latitude = 0.0,
+                longitude = 0.0,
+                emergencyType = "test",
+                customMessage = "Test message from GzingApp SOS system. This is a test to verify SMS functionality.",
+                contacts = listOf(phoneNumber)
+            )
+            
+            result.fold(
+                onSuccess = { response ->
+                    Log.d(TAG, "Test SMS sent successfully")
+                    Result.success(SosSmsResponse(
+                        status = if (response.success) "success" else "error",
+                        message = response.message,
+                        data = null
+                    ))
+                },
+                onFailure = { error ->
+                    Log.e(TAG, "Error sending test SMS", error)
+                    Result.failure(error)
+                }
+            )
             
         } catch (e: Exception) {
             Log.e(TAG, "Error sending test SMS", e)

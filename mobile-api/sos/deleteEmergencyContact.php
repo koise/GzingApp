@@ -10,16 +10,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-// Database configuration
-$host = 'localhost';
+// Suppress all errors to prevent HTML output
+error_reporting(0);
+ini_set('display_errors', 0);
+
+// Set error handlers to return JSON only
+set_error_handler(function($severity, $message, $file, $line) {
+    error_log("PHP Error: $message in $file on line $line");
+    return true;
+});
+
+set_exception_handler(function($exception) {
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Server error: ' . $exception->getMessage()
+    ]);
+    exit();
+});
+
+// Database configuration with fallback hosts
+$hosts = ['localhost'];
 $dbname = 'u126959096_gzing_admin';
 $username = 'u126959096_gzing_admin';
 $password = 'X6v8M$U9;j';
 
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
+$pdo = null;
+foreach ($hosts as $host) {
+    try {
+        $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        break;
+    } catch (PDOException $e) {
+        continue;
+    }
+}
+
+if (!$pdo) {
     http_response_code(500);
     echo json_encode([
         'success' => false,
@@ -73,7 +100,27 @@ try {
     
     if (!$existingContact) {
         $pdo->rollBack();
-        sendResponse(false, 'Emergency contact not found', null, 404);
+        // Check if contact was already deleted
+        $deletedQuery = "SELECT sc.*, u.first_name, u.last_name 
+                        FROM sos_contacts sc
+                        JOIN users u ON sc.user_id = u.id
+                        WHERE sc.id = ? AND sc.deleted_at IS NOT NULL AND u.deleted_at IS NULL";
+        $deletedStmt = $pdo->prepare($deletedQuery);
+        $deletedStmt->execute([$contactId]);
+        $deletedContact = $deletedStmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($deletedContact) {
+            sendResponse(true, 'Emergency contact was already deleted', [
+                'deleted_contact' => [
+                    'id' => $deletedContact['id'],
+                    'name' => $deletedContact['name'],
+                    'was_primary' => $deletedContact['is_primary']
+                ],
+                'already_deleted' => true
+            ], 200);
+        } else {
+            sendResponse(false, 'Emergency contact not found', null, 404);
+        }
     }
     
     $userId = $existingContact['user_id'];

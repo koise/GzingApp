@@ -1,5 +1,6 @@
 package com.example.gzingapp.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.gzingapp.data.AuthResponse
@@ -29,8 +30,10 @@ class AuthViewModel(
     }
     
     private fun checkLoginStatus() {
-        val userId = appSettings.getUserId()
-        _isLoggedIn.value = userId != null
+        val isLoggedIn = appSettings.isUserLoggedIn()
+        _isLoggedIn.value = isLoggedIn
+        
+        Log.d("AuthViewModel", "Checking login status: isLoggedIn=$isLoggedIn")
     }
     
     fun login(email: String, password: String) {

@@ -95,7 +95,7 @@ try {
     
     // Initialize database connection
     $db = new Database();
-    $pdo = $db->connect();
+    $pdo = $db->getConnection();
     
     if (!$pdo) {
         throw new Exception('Database connection failed');
