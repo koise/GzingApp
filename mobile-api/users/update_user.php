@@ -69,14 +69,14 @@ try {
     $conn = $db->getConnection();
     
     // Check if user exists
-    $checkStmt = $conn->prepare("SELECT id FROM users WHERE id = ? AND deleted_at IS NULL");
+    $checkStmt = $conn->prepare("SELECT id FROM users WHERE id = ? AND status != 'deleted'");
     $checkStmt->execute([$userId]);
     if (!$checkStmt->fetch()) {
         Response::error('User not found', 404);
     }
     
     // Check if email is already taken by another user
-    $emailCheckStmt = $conn->prepare("SELECT id FROM users WHERE email = ? AND id != ? AND deleted_at IS NULL");
+    $emailCheckStmt = $conn->prepare("SELECT id FROM users WHERE email = ? AND id != ? AND status != 'deleted'");
     $emailCheckStmt->execute([$email, $userId]);
     if ($emailCheckStmt->fetch()) {
         Response::error('Email is already taken by another user');
@@ -84,7 +84,7 @@ try {
     
     // Check if username is already taken by another user (if provided)
     if ($username) {
-        $usernameCheckStmt = $conn->prepare("SELECT id FROM users WHERE username = ? AND id != ? AND deleted_at IS NULL");
+        $usernameCheckStmt = $conn->prepare("SELECT id FROM users WHERE username = ? AND id != ? AND status != 'deleted'");
         $usernameCheckStmt->execute([$username, $userId]);
         if ($usernameCheckStmt->fetch()) {
             Response::error('Username is already taken by another user');

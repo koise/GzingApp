@@ -47,7 +47,7 @@ try {
             id, first_name, last_name, email, username, phone_number, 
             role, status, created_at, last_login
         FROM users 
-        WHERE id = ? AND deleted_at IS NULL
+        WHERE id = ? AND status != 'deleted'
     ");
     $userStmt->execute([$userId]);
     $user = $userStmt->fetch();
@@ -60,7 +60,7 @@ try {
     $sosCountStmt = $conn->prepare("
         SELECT COUNT(*) as count 
         FROM sos_contacts 
-        WHERE user_id = ? AND deleted_at IS NULL
+        WHERE user_id = ?
     ");
     $sosCountStmt->execute([$userId]);
     $sosCount = $sosCountStmt->fetch()['count'];
@@ -69,7 +69,7 @@ try {
     $logsCountStmt = $conn->prepare("
         SELECT COUNT(*) as count 
         FROM navigation_activity_logs 
-        WHERE user_id = ? AND deleted_at IS NULL
+        WHERE user_id = ?
     ");
     $logsCountStmt->execute([$userId]);
     $logsCount = $logsCountStmt->fetch()['count'];
@@ -78,7 +78,7 @@ try {
     $lastActivityStmt = $conn->prepare("
         SELECT created_at 
         FROM navigation_activity_logs 
-        WHERE user_id = ? AND deleted_at IS NULL 
+        WHERE user_id = ? 
         ORDER BY created_at DESC 
         LIMIT 1
     ");

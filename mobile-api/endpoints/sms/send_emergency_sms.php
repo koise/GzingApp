@@ -248,11 +248,13 @@ function generateEmergencyMessage($user_id, $latitude, $longitude, $location_inf
     }
     
     $user_name = $user_info['name'];
-    $user_phone = $user_info['phone'];
+    $user_phone = $user_info['phone'] ?? 'Not provided';
     
     $message = "EMERGENCY ALERT - $user_name needs immediate help!\n\n";
     $message .= "User: $user_name\n";
-    $message .= "Phone: $user_phone\n";
+    if (!empty($user_phone) && $user_phone !== 'Not provided') {
+        $message .= "Phone: $user_phone\n";
+    }
     $message .= "Location: " . $location_info['formatted_address'] . "\n";
     $message .= "Time: $timestamp\n";
     
@@ -296,13 +298,14 @@ function getUserInfo($user_id) {
             throw new Exception("User name is incomplete for ID: $user_id");
         }
         
-        if (empty($user['phone_number'])) {
-            throw new Exception("User phone number is missing for ID: $user_id");
-        }
+    // Phone number is optional for emergency SMS
+    // if (empty($user['phone_number'])) {
+    //     throw new Exception("User phone number is missing for ID: $user_id");
+    // }
         
         return [
             'name' => trim($user['first_name'] . ' ' . $user['last_name']),
-            'phone' => $user['phone_number']
+            'phone' => $user['phone_number'] ?? null
         ];
         
     } catch (Exception $e) {

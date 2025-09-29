@@ -67,4 +67,8 @@
     <color name="medical">#4CAF50</color>
     <color name="security">#FF9800</color>
     <color name="dialog_background">#FFFFFF</color>
+    
+    <!-- Places Activity Colors -->
+    <color name="background_color">#F5F5F5</color>
+    <color name="category_background">#E3F2FD</color>
 </resources>

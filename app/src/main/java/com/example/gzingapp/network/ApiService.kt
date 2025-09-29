@@ -101,11 +101,8 @@ interface ApiService {
     @POST("users/delete_user.php")
     suspend fun deleteUser(@Body deleteUserRequest: DeleteUserRequest): Response<ApiResponse<DeleteUserResponse>>
     
-    // Prototype API endpoints (no authentication required)
-    @GET("prototype/updateUsers")
-    suspend fun getUpdateUsers(@Query("id") userId: Int): Response<ApiResponse<UpdateUsersResponse>>
-    
-    @POST("prototype/updateUsers")
+    // User update endpoints
+    @POST("users/update_user.php")
     suspend fun updateUsers(@Body updateUsersRequest: UpdateUsersRequest): Response<ApiResponse<UpdateUsersResponse>>
     
     // Navigation Activity Logs endpoints
@@ -258,7 +255,7 @@ interface ApiService {
     ): Response<NavigationHistoryResponse>
 
     // Emergency SMS endpoints
-    @POST("sms/send_emergency_sms")
+    @POST("endpoints/sms/send_emergency_sms.php")
     suspend fun sendEmergencySMS(
         @Body request: EmergencySMSRequest
     ): Response<EmergencySMSResponse>

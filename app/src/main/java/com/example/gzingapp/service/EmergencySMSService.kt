@@ -45,6 +45,7 @@ class EmergencySMSService(private val context: Context) {
                 Log.d(TAG, "Sending emergency SMS for user: $userId")
                 Log.d(TAG, "Location: $latitude, $longitude")
                 Log.d(TAG, "Contacts: ${contacts.joinToString(", ")}")
+                Log.d(TAG, "Request: $request")
                 
                 val response = apiService.sendEmergencySMS(request)
                 
@@ -60,7 +61,9 @@ class EmergencySMSService(private val context: Context) {
                     Log.e(TAG, "Failed to send emergency SMS: $errorMessage")
                     val errorBody = response.errorBody()?.string()
                     Log.e(TAG, "Error body: $errorBody")
-                    Result.failure(Exception(errorMessage))
+                    Log.e(TAG, "Response headers: ${response.headers()}")
+                    Log.e(TAG, "Request URL: ${response.raw().request.url}")
+                    Result.failure(Exception("$errorMessage - $errorBody"))
                 }
                 
             } catch (e: Exception) {

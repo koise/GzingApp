@@ -41,7 +41,7 @@ data class DeleteEmergencyContactResponse(
 
 // User/Profile placeholder models
 data class UserProfileResponse(
-    @SerializedName("user") val user: UserProfile
+    @SerializedName("profile") val profile: UserProfile
 )
 
 data class UpdateUserRequest(

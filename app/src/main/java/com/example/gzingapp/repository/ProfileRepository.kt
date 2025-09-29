@@ -1,5 +1,6 @@
 package com.example.gzingapp.repository
 
+import android.util.Log
 import com.example.gzingapp.data.*
 import com.example.gzingapp.network.RetrofitClient
 import kotlinx.coroutines.Dispatchers
@@ -17,8 +18,18 @@ class ProfileRepository(private val appSettings: com.example.gzingapp.utils.AppS
             if (response.isSuccessful) {
                 val apiResponse = response.body()
                 val data = apiResponse?.data
+                Log.d("ProfileRepository", "=== API RESPONSE DEBUG ===")
+                Log.d("ProfileRepository", "Response successful: ${response.isSuccessful}")
+                Log.d("ProfileRepository", "API Response: $apiResponse")
+                Log.d("ProfileRepository", "Data: $data")
+                if (data?.profile != null) {
+                    Log.d("ProfileRepository", "Profile data: ${data.profile}")
+                    Log.d("ProfileRepository", "Phone number from API: '${data.profile.phoneNumber}'")
+                }
+                Log.d("ProfileRepository", "=== END API RESPONSE DEBUG ===")
+                
                 if (apiResponse?.success == true && data != null) {
-                    Result.success(data.user)
+                    Result.success(data.profile)
                 } else {
                     Result.failure(Exception("API returned unsuccessful response: ${apiResponse?.message}"))
                 }

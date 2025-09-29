@@ -89,7 +89,9 @@ dependencies {
     // Mapbox Directions API for RoutesMapsActivity
     implementation("com.mapbox.mapboxsdk:mapbox-sdk-services:5.7.0")
     
-    // No additional Mapbox dependencies needed for MapActivity - using HTTP API directly
+    // Mapbox Search SDK
+    implementation("com.mapbox.search:mapbox-search-android:2.14.0")
+    implementation("com.mapbox.search:mapbox-search-android-ui:2.14.0")
     
     // Google Play Services Location
     implementation("com.google.android.gms:play-services-location:21.0.1")

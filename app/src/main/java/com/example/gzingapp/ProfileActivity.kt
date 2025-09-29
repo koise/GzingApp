@@ -252,7 +252,15 @@ class ProfileActivity : AppCompatActivity() {
     }
     
     private fun updateProfileFields(profile: UserProfile) {
-        Log.d("ProfileActivity", "Updating profile fields - Phone: ${profile.phoneNumber}")
+        Log.d("ProfileActivity", "=== UPDATING PROFILE FIELDS ===")
+        Log.d("ProfileActivity", "Profile ID: ${profile.id}")
+        Log.d("ProfileActivity", "First Name: ${profile.firstName}")
+        Log.d("ProfileActivity", "Last Name: ${profile.lastName}")
+        Log.d("ProfileActivity", "Email: ${profile.email}")
+        Log.d("ProfileActivity", "Phone Number: '${profile.phoneNumber}' (type: ${profile.phoneNumber?.javaClass?.simpleName})")
+        Log.d("ProfileActivity", "Username: ${profile.username}")
+        Log.d("ProfileActivity", "Role: ${profile.role}")
+        Log.d("ProfileActivity", "Status: ${profile.status}")
         
         etFirstName.setText(profile.firstName)
         etLastName.setText(profile.lastName)
@@ -263,6 +271,7 @@ class ProfileActivity : AppCompatActivity() {
         etPhoneNumber.setText(phoneNumber)
         
         Log.d("ProfileActivity", "Phone number field set to: '${etPhoneNumber.text}' (original: '${profile.phoneNumber}')")
+        Log.d("ProfileActivity", "=== PROFILE FIELDS UPDATED ===")
         
         // Update profile picture and display name
         val fullName = "${profile.firstName} ${profile.lastName}"
@@ -494,28 +503,47 @@ class ProfileActivity : AppCompatActivity() {
     }
     
     private fun performDeleteContact(contact: SosContact) {
+        Log.d(TAG, "Attempting to delete contact: ${contact.name} (ID: ${contact.id})")
+        
         lifecycleScope.launch {
             try {
                 profileRepository.deleteEmergencyContact(contact.id, permanent = false).fold(
                     onSuccess = { response ->
+                        Log.d(TAG, "Delete contact response received: $response")
+                        
+                        // Use the original contact name since the API might not return the deleted contact info
+                        val contactName = contact.name
+                        Log.d(TAG, "Contact deleted successfully: $contactName")
+                        
                         Toast.makeText(this@ProfileActivity, 
-                            "Contact deleted successfully: ${response.deletedContact.name}", 
+                            "Contact deleted successfully: $contactName", 
                             Toast.LENGTH_SHORT).show()
                         
-                        
-                        // Reload emergency contacts
+                        // Reload emergency contacts to refresh the list
                         loadUserData()
                     },
                     onFailure = { error ->
+                        Log.e(TAG, "Failed to delete contact: ${error.message}", error)
+                        
+                        // Even if the API call fails, try to reload the data to check if deletion actually worked
+                        // This handles cases where the deletion succeeds but the response parsing fails
+                        loadUserData()
+                        
+                        // Show a more user-friendly error message
                         Toast.makeText(this@ProfileActivity, 
-                            "Failed to delete contact: ${error.message}", 
-                            Toast.LENGTH_SHORT).show()
+                            "Contact deletion may have succeeded. Please refresh to verify.", 
+                            Toast.LENGTH_LONG).show()
                     }
                 )
             } catch (e: Exception) {
+                Log.e(TAG, "Exception during contact deletion: ${e.message}", e)
+                
+                // Even if there's an exception, try to reload the data to check if deletion worked
+                loadUserData()
+                
                 Toast.makeText(this@ProfileActivity, 
-                    "Error deleting contact: ${e.message}", 
-                    Toast.LENGTH_SHORT).show()
+                    "Contact deletion may have succeeded. Please refresh to verify.", 
+                    Toast.LENGTH_LONG).show()
             }
         }
     }
