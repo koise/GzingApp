@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="0dp"
+    android:background="@drawable/dialog_background_warning"
+    android:clipToPadding="false">
+
+    <!-- Header Section with Gradient Background -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="32dp"
+        android:background="@drawable/dialog_background_warning"
+        android:gravity="center">
+
+        <!-- Warning Icon with Scale -->
+        <ImageView
+            android:id="@+id/ivWarningIcon"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="20dp"
+            android:src="@drawable/ic_warning"
+            android:contentDescription="Warning"
+            android:elevation="2dp" />
+
+        <!-- Title with Better Typography -->
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="OFF ROUTE DETECTED"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#E74C3C"
+            android:gravity="center"
+            android:letterSpacing="0.05"
+            android:layout_marginBottom="4dp" />
+
+        <!-- Countdown Timer - Circular Design -->
+        <FrameLayout
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:id="@+id/tvCountdown"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="45"
+                android:textSize="56sp"
+                android:textStyle="bold"
+                android:textColor="#E74C3C"
+                android:gravity="center"
+                android:background="@drawable/countdown_background"
+                android:elevation="4dp" />
+
+        </FrameLayout>
+
+        <!-- Warning Message - Refined -->
+        <TextView
+            android:id="@+id/tvWarningMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="You've deviated from your planned route.\nEmergency SMS will be sent automatically if you don't respond."
+            android:textSize="15sp"
+            android:textColor="#5A6C7D"
+            android:gravity="center"
+            android:lineSpacingExtra="4dp"
+            android:alpha="0.95" />
+
+    </LinearLayout>
+
+    <!-- Location Info Card - Modern Card Design -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="24dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="#F8F9FA">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <!-- Current Location -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📍 "
+                    android:textSize="16sp"
+                    android:layout_marginEnd="8dp" />
+
+                <TextView
+                    android:id="@+id/tvCurrentLocation"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Getting location..."
+                    android:textSize="14sp"
+                    android:textColor="#2C3E50"
+                    android:lineSpacingExtra="2dp"
+                    android:maxLines="3"
+                    android:ellipsize="end" />
+
+            </LinearLayout>
+
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E8EAED"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Destination -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🎯 "
+                    android:textSize="16sp"
+                    android:layout_marginEnd="8dp" />
+
+                <TextView
+                    android:id="@+id/tvDestination"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Unknown"
+                    android:textSize="14sp"
+                    android:textColor="#2C3E50"
+                    android:lineSpacingExtra="2dp"
+                    android:maxLines="3"
+                    android:ellipsize="end" />
+
+            </LinearLayout>
+
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E8EAED"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Deviation Distance -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="⚠️ "
+                    android:textSize="16sp"
+                    android:layout_marginEnd="8dp" />
+
+                <TextView
+                    android:id="@+id/tvDeviationDistance"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Deviation: 0m"
+                    android:textSize="14sp"
+                    android:textColor="#E74C3C"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <!-- Button Container - Modern Button Design -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="24dp">
+
+        <!-- Cancel Button - Primary Action -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancel"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginBottom="12dp"
+            android:text="I'M SAFE - CANCEL ALERT"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.02"
+            app:backgroundTint="#27AE60"
+            app:cornerRadius="12dp"
+            app:elevation="2dp"
+            app:strokeWidth="0dp"
+            android:textColor="@android:color/white" />
+
+        <!-- Send Now Button - Secondary Action -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSendNow"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="SEND EMERGENCY ALERT NOW"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.02"
+            app:backgroundTint="#E74C3C"
+            app:cornerRadius="12dp"
+            app:elevation="2dp"
+            app:strokeWidth="0dp"
+            android:textColor="@android:color/white" />
+
+    </LinearLayout>
+
+</LinearLayout>

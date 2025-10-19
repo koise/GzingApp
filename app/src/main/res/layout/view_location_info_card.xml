@@ -198,6 +198,41 @@
 
             </LinearLayout>
 
+            <!-- Failure Rate Indicator Row -->
+            <LinearLayout
+                android:id="@+id/rowFailureRate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Route Status"
+                    android:textSize="13sp"
+                    android:textColor="#666666"
+                    android:layout_marginEnd="8dp" />
+
+                <View
+                    android:id="@+id/failureRateDot"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:background="@drawable/circle_background"
+                    android:layout_marginEnd="6dp" />
+
+                <TextView
+                    android:id="@+id/tvFailureRate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="On Route"
+                    android:textSize="14sp"
+                    android:textColor="#333333" />
+
+            </LinearLayout>
+
             <!-- CTA button (optional) -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnStartNavigation"

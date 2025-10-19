@@ -86,6 +86,7 @@ dependencies {
     implementation("com.mapbox.maps:android:11.14.2")
     implementation("com.mapbox.extension:maps-compose:11.14.2")
     
+    
     // Mapbox Directions API for RoutesMapsActivity
     implementation("com.mapbox.mapboxsdk:mapbox-sdk-services:5.7.0")
     

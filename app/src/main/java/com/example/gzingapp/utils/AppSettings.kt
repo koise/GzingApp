@@ -24,6 +24,10 @@ class AppSettings(private val context: Context) {
         private const val KEY_ROUTE_GEOFENCE_RADIUS = "route_geofence_radius"
         private const val KEY_GEOFENCE_NOTIFICATIONS = "geofence_notifications"
         
+        // SOS Warning System
+        private const val KEY_SOS_WARNING_ENABLED = "sos_warning_enabled"
+        private const val KEY_SOS_COUNTDOWN_SECONDS = "sos_countdown_seconds"
+        
         // Authentication keys
         private const val KEY_AUTH_STATE = "auth_state"
         private const val KEY_LOGIN_TIMESTAMP = "login_timestamp"
@@ -181,6 +185,38 @@ class AppSettings(private val context: Context) {
     
     fun setGeofenceNotificationsEnabled(enabled: Boolean) {
         sharedPref.edit().putBoolean(KEY_GEOFENCE_NOTIFICATIONS, enabled).apply()
+    }
+    
+    // SOS Warning System Settings
+    
+    /**
+     * Check if SOS warning is enabled
+     */
+    fun isSosWarningEnabled(): Boolean {
+        return sharedPref.getBoolean(KEY_SOS_WARNING_ENABLED, true)
+    }
+    
+    /**
+     * Enable/disable SOS warning system
+     */
+    fun setSosWarningEnabled(enabled: Boolean) {
+        sharedPref.edit().putBoolean(KEY_SOS_WARNING_ENABLED, enabled).apply()
+    }
+    
+    /**
+     * Get SOS countdown duration in seconds (default: 45 seconds)
+     */
+    fun getSosCountdownSeconds(): Int {
+        return sharedPref.getInt(KEY_SOS_COUNTDOWN_SECONDS, 45)
+    }
+    
+    /**
+     * Set SOS countdown duration in seconds (allowed: 30, 45, 60)
+     */
+    fun setSosCountdownSeconds(seconds: Int) {
+        val allowed = setOf(30, 45, 60)
+        val value = if (seconds in allowed) seconds else 45
+        sharedPref.edit().putInt(KEY_SOS_COUNTDOWN_SECONDS, value).apply()
     }
     
     // Clear user session

@@ -71,4 +71,7 @@
     <!-- Places Activity Colors -->
     <color name="background_color">#F5F5F5</color>
     <color name="category_background">#E3F2FD</color>
+    
+    <!-- SOS Warning Cooldown Colors -->
+    <color name="warning_yellow">#F1C40F</color>
 </resources>
