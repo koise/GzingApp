@@ -305,7 +305,6 @@ class NavigationRoutesActivity : AppCompatActivity() {
         
         // Populate dialog with route data
         val distance = route.routeDistance.toDoubleOrNull() ?: 0.0
-        val duration = route.estimatedDuration ?: calculateDefaultDuration(distance)
         val estimatedFare = route.estimatedFare?.toDoubleOrNull() ?: calculateDefaultFare(distance)
         val transportMode = route.transportMode.ifBlank { "driving" }
         
@@ -313,10 +312,8 @@ class NavigationRoutesActivity : AppCompatActivity() {
         dialogView.findViewById<TextView>(R.id.tvDestinationName).text = route.destinationName
         dialogView.findViewById<TextView>(R.id.tvDestinationAddress).text = route.destinationAddress
         dialogView.findViewById<TextView>(R.id.tvRouteDistance).text = String.format("%.2f km", distance)
-        dialogView.findViewById<TextView>(R.id.tvDuration).text = "${duration} min"
         dialogView.findViewById<TextView>(R.id.tvTransportMode).text = transportMode.replaceFirstChar { it.uppercase() }
         dialogView.findViewById<TextView>(R.id.tvEstimatedFare).text = String.format("₱%.2f", estimatedFare)
-        dialogView.findViewById<TextView>(R.id.tvUsageCount).text = "Used ${route.usageCount} times"
         dialogView.findViewById<TextView>(R.id.tvCreatedDate).text = formatDateTime(route.createdAt)
         
         // Set favorite icon

@@ -102,9 +102,6 @@ class MapActivity : AppCompatActivity() {
     private lateinit var tvFare: TextView
     private lateinit var tvTrafficStatus: TextView
     private lateinit var trafficDot: View
-    private lateinit var tvFailureRate: TextView
-    private lateinit var failureRateDot: View
-    private lateinit var rowFailureRate: LinearLayout
     private lateinit var btnStartNavigation: MaterialButton
     private lateinit var fabMyLocation: FloatingActionButton
     private lateinit var fabAddLocation: FloatingActionButton
@@ -148,24 +145,23 @@ class MapActivity : AppCompatActivity() {
     private var navTts: android.speech.tts.TextToSpeech? = null
     private var lastTrafficState: Boolean = false
     private var offRouteLine: List<Point>? = null
-    
-    // Failure Rate Monitoring
-    private var failureRate: Int = 0
-    private var lastLocationOnRoute: Boolean = true
-    private var consecutiveOffRouteCount: Int = 0
+
+    // Emergency SMS tracking
     private var emergencySmsSent: Boolean = false
-    private val DEVIATION_THRESHOLD_METERS = 50.0
-    private val FAILURE_RATE_INCREMENT = 10
-    private val ALTERNATIVE_ROUTE_PENALTY = 40
-    
-    // Off-Route SOS Warning System
+
+    // Off-Route SOS Warning System (if SOS Warning enabled in settings)
     private var offRouteWarningTriggered: Boolean = false
     private var offRouteStartTime: Long = 0
-    private val OFF_ROUTE_CONFIRMATION_THRESHOLD = 5 // seconds before triggering SOS
-    // On-route debounce to avoid dialog flash when GPS briefly returns to route
-    private val ON_ROUTE_DEBOUNCE_SECONDS = 3
+    private val OFF_ROUTE_CONFIRMATION_THRESHOLD = 10 // Increased from 5 to 10 seconds
+    private val ON_ROUTE_DEBOUNCE_SECONDS = 0 // Removed debounce - reset immediately when on route
     private var onRouteSinceTime: Long = 0L
     private var sosWarningDialog: com.example.gzingapp.ui.SosWarningDialog? = null
+
+    
+    // Origin tracking for distance-based SOS
+    private var navigationOriginPoint: Point? = null
+    
+
     
     // New State Management Variables
     private var offRoute: Boolean = false
@@ -173,11 +169,6 @@ class MapActivity : AppCompatActivity() {
     private var cooldownEndTime: Long = 0L
     private val COOLDOWN_DURATION_SECONDS = 10 // 10 seconds cooldown
     
-    // Distance Increase SOS Warning System
-    private var initialDistanceToDestination: Double = 0.0
-    private val DISTANCE_INCREASE_THRESHOLD_METERS = 500.0
-    private var distanceIncreaseStartTime: Long = 0
-    private val DISTANCE_INCREASE_CONFIRMATION_SECONDS = 10
     
     // SOS Spam Prevention
     private var lastSosSentTime: Long = 0
@@ -279,9 +270,6 @@ class MapActivity : AppCompatActivity() {
         tvFare = findViewById(R.id.tvFare)
         tvTrafficStatus = findViewById(R.id.tvTrafficStatus)
         trafficDot = findViewById(R.id.trafficDot)
-        tvFailureRate = findViewById(R.id.tvFailureRate)
-        failureRateDot = findViewById(R.id.failureRateDot)
-        rowFailureRate = findViewById(R.id.rowFailureRate)
         btnStartNavigation = findViewById(R.id.btnStartNavigation)
         fabMyLocation = findViewById(R.id.fabMyLocation)
         fabAddLocation = findViewById(R.id.fabAddLocation)
@@ -368,10 +356,6 @@ class MapActivity : AppCompatActivity() {
                 val line = alternativeRoutes[currentRouteIndex]
                 routeCoordinates = line.coordinates()
                 
-                // Increase failure rate for using alternative routes
-                if (isNavigating) {
-                    increaseFailureRate(ALTERNATIVE_ROUTE_PENALTY, "Alternative route selected")
-                }
                 
                 // Update route by redrawing layers
                 redrawAllLayers()
@@ -419,10 +403,6 @@ class MapActivity : AppCompatActivity() {
         rowPinned.visibility = if (collapsed) View.GONE else View.VISIBLE
         rowStats.visibility = if (collapsed) View.GONE else View.VISIBLE
         
-        // Show failure rate row only when navigating, not collapsed, and SOS warning is disabled
-        val appSettings = com.example.gzingapp.utils.AppSettings(this)
-        val showFailureRate = !collapsed && isNavigating && !appSettings.isSosWarningEnabled()
-        rowFailureRate.visibility = if (showFailureRate) View.VISIBLE else View.GONE
         
         rowCurrent.visibility = View.VISIBLE
         btnStartNavigation.visibility = View.VISIBLE
@@ -452,15 +432,9 @@ class MapActivity : AppCompatActivity() {
             // Auto-save the route at navigation start
             try { createRouteFromNavigation() } catch (_: Exception) { }
             
-            // Capture initial distance to destination when starting navigation
-            if (currentLocation != null && pinnedLocation != null) {
-                initialDistanceToDestination = haversineMeters(
-                    currentLocation!!.latitude(), currentLocation!!.longitude(),
-                    pinnedLocation!!.latitude(), pinnedLocation!!.longitude()
-                )
-                distanceIncreaseStartTime = 0  // Reset timer
-                Log.d("MapActivity", "Navigation started - Initial distance to destination: ${String.format("%.2f", initialDistanceToDestination)}m")
-            }
+            // Capture origin point when navigation starts
+            navigationOriginPoint = currentLocation
+            Log.d("MapActivity", "Navigation started - Origin: $navigationOriginPoint")
         } else {
             // Re-enable drawer and bottom navigation after navigation stops
             enableDrawerAndBottomNav()
@@ -469,16 +443,19 @@ class MapActivity : AppCompatActivity() {
             redrawAllLayers()
             // Cancel any active SOS warning dialog
             cancelOffRouteSosWarning()
-            // Reset distance tracking when navigation stops
-            distanceIncreaseStartTime = 0
             // Reset SOS cooldown when navigation stops
             lastSosSentTime = 0
             // Reset SOS warning flag when navigation stops
             sosWarningShownThisSession = false
+            
+            // Reset origin point when navigation stops
+            navigationOriginPoint = null
             // Reset new state management variables
             offRoute = false
             isSafe = false
             cooldownEndTime = 0L
+            // Reset origin point when navigation stops
+            navigationOriginPoint = null
         }
         
         btnStartNavigation.text = if (enable) "Stop Navigation" else "Start Navigation"
@@ -488,8 +465,12 @@ class MapActivity : AppCompatActivity() {
             hasAnnouncedArrival = false
             navigationStartTime = System.currentTimeMillis() // Record navigation start time
             
-            // Reset failure rate monitoring for new navigation session
-            resetFailureRateMonitoring()
+            // Reset SOS system for new navigation session
+            resetSosSystem()
+            
+            // Capture origin point for distance-based SOS
+            navigationOriginPoint = currentLocation
+            Log.d("MapActivity", "Navigation started - Origin captured: $navigationOriginPoint")
             
             // Reset SOS warning flag for new navigation session
             sosWarningShownThisSession = false
@@ -1004,10 +985,8 @@ class MapActivity : AppCompatActivity() {
                         // Real-time proximity check for geofence
                         if (isNavigating && pinnedLocation != null) {
                             checkRealTimeProximity(point, pinnedLocation!!)
-                            // Monitor route deviation for failure rate
-                            checkRouteDeviation(point)
-                            // Monitor distance increase to destination
-                            checkDistanceIncrease(point)
+                            // Monitor distance from origin
+                            checkOriginDistance(point)
                         }
                     } else {
                         Log.w("MapActivity", "Real-time location has zero coordinates")
@@ -2324,7 +2303,7 @@ class MapActivity : AppCompatActivity() {
                     val distance = haversineMeters(
                         currentLoc.latitude(), currentLoc.longitude(),
                         destLoc.latitude(), destLoc.longitude()
-                    ) / 1000.0 // Convert to kilometers
+                    ) / 1000.0
                     
                     val estimatedFare = calculateEstimatedFare(distance)
                     
@@ -2355,7 +2334,6 @@ class MapActivity : AppCompatActivity() {
                         }
                     }.onFailure { error ->
                         withContext(Dispatchers.Main) {
-                            Toast.makeText(this@MapActivity, "Failed to create route: ${error.message}", Toast.LENGTH_LONG).show()
                             Log.e("RouteCreation", "Failed to create route", error)
                         }
                     }
@@ -2622,23 +2600,11 @@ class MapActivity : AppCompatActivity() {
     
     // ===== FAILURE RATE MONITORING METHODS =====
     
-    private fun resetFailureRateMonitoring() {
-        failureRate = 0
-        lastLocationOnRoute = true
-        consecutiveOffRouteCount = 0
+    private fun resetSosSystem() {
         emergencySmsSent = false
+        navigationOriginPoint = null
         
-        // Reset distance tracking
-        initialDistanceToDestination = 0.0
-        distanceIncreaseStartTime = 0
-        
-        // Only update failure rate UI if SOS warning is disabled
-        val appSettings = com.example.gzingapp.utils.AppSettings(this)
-        if (!appSettings.isSosWarningEnabled()) {
-            updateFailureRateUI()
-        }
-        
-        Log.d("MapActivity", "Failure rate monitoring reset for new navigation session")
+        Log.d("MapActivity", "SOS system reset for new navigation session")
     }
     
     private fun requestSmsPermission() {
@@ -2650,106 +2616,10 @@ class MapActivity : AppCompatActivity() {
             smsPermissionRequest.launch(Manifest.permission.SEND_SMS)
         }
     }
-    
-    private fun checkRouteDeviation(userPoint: Point) {
-        if (routeCoordinates == null || routeCoordinates!!.isEmpty()) {
-            Log.d("MapActivity", "No route coordinates available for deviation check")
-            return
-        }
-        
-        try {
-            // Calculate distance from user location to the nearest point on the route
-            var minDistance = Double.MAX_VALUE
-            var nearestRoutePoint: Point? = null
-            
-            // Find the nearest point on the route polyline
-            for (routePoint in routeCoordinates!!) {
-                val distance = haversineMeters(
-                    userPoint.latitude(), userPoint.longitude(),
-                    routePoint.latitude(), routePoint.longitude()
-                )
-                if (distance < minDistance) {
-                    minDistance = distance
-                    nearestRoutePoint = routePoint
-                }
-            }
-            
-            val distanceMeters = minDistance
-            Log.d("MapActivity", "Distance to route: ${String.format("%.2f", distanceMeters)}m, threshold: ${DEVIATION_THRESHOLD_METERS}m")
-            
-            val isOnRoute = distanceMeters <= DEVIATION_THRESHOLD_METERS
-            
-            if (!isOnRoute) {
-                consecutiveOffRouteCount++
-                
-                // Track when off-route started
-                if (offRouteStartTime == 0L) {
-                    offRouteStartTime = System.currentTimeMillis()
-                    Log.d("MapActivity", "User went off-route - starting timer")
-                }
-                
-                // Check if off-route for confirmation period
-                val offRouteTimeSeconds = (System.currentTimeMillis() - offRouteStartTime) / 1000
-                Log.d("MapActivity", "Off-route time: ${offRouteTimeSeconds}s, threshold: ${OFF_ROUTE_CONFIRMATION_THRESHOLD}s")
-                
-                if (offRouteTimeSeconds >= OFF_ROUTE_CONFIRMATION_THRESHOLD && !offRouteWarningTriggered) {
-                    // User is definitely off-route, trigger SOS warning
-                    Log.w("MapActivity", "🚨 SUSTAINED OFF-ROUTE DETECTED - Triggering SOS warning")
-                    triggerOffRouteSosWarning(distanceMeters)
-                }
-                
-                // Build/extend off-route line for visualization
-                if (offRouteLine == null) offRouteLine = mutableListOf()
-                (offRouteLine as MutableList<Point>).add(userPoint)
-                
-                // Update failure rate only if SOS warning is disabled
-                val appSettings = com.example.gzingapp.utils.AppSettings(this)
-                if (!appSettings.isSosWarningEnabled()) {
-                    if (lastLocationOnRoute || consecutiveOffRouteCount >= 3) {
-                        increaseFailureRate(FAILURE_RATE_INCREMENT, "Route deviation detected: ${String.format("%.1f", distanceMeters)}m")
-                    }
-                }
-                
-                Log.d("MapActivity", "User off route - consecutive count: $consecutiveOffRouteCount")
-                redrawAllLayers()
-            } else {
-                // User is back on route; apply debounce before cancelling to prevent dialog flash
-                if (onRouteSinceTime == 0L) {
-                    onRouteSinceTime = System.currentTimeMillis()
-                }
-                val onRouteSeconds = (System.currentTimeMillis() - onRouteSinceTime) / 1000
-                if ((offRouteStartTime > 0 || offRouteWarningTriggered) && onRouteSeconds >= ON_ROUTE_DEBOUNCE_SECONDS) {
-                    Log.d("MapActivity", "User back on route for ${onRouteSeconds}s (>= ${ON_ROUTE_DEBOUNCE_SECONDS}s) - cancelling SOS warning")
-                    cancelOffRouteSosWarning()
-                }
-                offRouteStartTime = 0
-                
-                // Reset consecutive off-route count when back on route
-                if (consecutiveOffRouteCount > 0) {
-                    Log.d("MapActivity", "User back on route - resetting consecutive count")
-                    consecutiveOffRouteCount = 0
-                }
-                // Clear off-route breadcrumb when back on route to reduce clutter
-                if (offRouteLine != null) {
-                    offRouteLine = null
-                    redrawAllLayers()
-                }
-            }
-            
-            lastLocationOnRoute = isOnRoute
-            
-        } catch (e: Exception) {
-            Log.e("MapActivity", "Error checking route deviation", e)
-        }
-    }
 
-    private fun checkDistanceIncrease(userPoint: Point) {
-        if (!isNavigating || pinnedLocation == null) {
-            // Reset timer if not navigating
-            if (distanceIncreaseStartTime > 0) {
-                distanceIncreaseStartTime = 0
-                Log.d("MapActivity", "Distance increase timer reset - not navigating")
-            }
+
+    private fun checkOriginDistance(userPoint: Point) {
+        if (!isNavigating || navigationOriginPoint == null) {
             return
         }
 
@@ -2764,279 +2634,24 @@ class MapActivity : AppCompatActivity() {
             return
         }
 
-        // Calculate current distance to destination
-        val currentDistanceToDestination = haversineMeters(
+        // Calculate distance from origin
+        val distanceFromOrigin = haversineMeters(
             userPoint.latitude(), userPoint.longitude(),
-            pinnedLocation!!.latitude(), pinnedLocation!!.longitude()
+            navigationOriginPoint!!.latitude(), navigationOriginPoint!!.longitude()
         )
 
-        // Calculate how much the distance has increased from initial
-        val distanceIncrease = currentDistanceToDestination - initialDistanceToDestination
+        Log.d("MapActivity", "Origin distance check: ${String.format("%.2f", distanceFromOrigin)}m from origin")
 
-        Log.d("MapActivity", "Distance check - Initial: ${String.format("%.2f", initialDistanceToDestination)}m, Current: ${String.format("%.2f", currentDistanceToDestination)}m, Increase: ${String.format("%.2f", distanceIncrease)}m")
-
-        // Check if distance increase exceeds threshold
-        if (distanceIncrease >= DISTANCE_INCREASE_THRESHOLD_METERS) {
-            // Start or continue timing the sustained increase
-            if (distanceIncreaseStartTime == 0L) {
-                distanceIncreaseStartTime = System.currentTimeMillis()
-                Log.d("MapActivity", "Distance increase detected (${String.format("%.2f", distanceIncrease)}m) - starting ${DISTANCE_INCREASE_CONFIRMATION_SECONDS}s confirmation timer")
-            }
-
-            // Check if the increase has been sustained for the required duration
-            val sustainedTimeSeconds = (System.currentTimeMillis() - distanceIncreaseStartTime) / 1000
-            Log.d("MapActivity", "Distance increase sustained for ${sustainedTimeSeconds}s (threshold: ${DISTANCE_INCREASE_CONFIRMATION_SECONDS}s)")
-
-            if (sustainedTimeSeconds >= DISTANCE_INCREASE_CONFIRMATION_SECONDS) {
-                Log.w("MapActivity", "🚨 DISTANCE INCREASE THRESHOLD EXCEEDED FOR ${DISTANCE_INCREASE_CONFIRMATION_SECONDS}s - Triggering SOS warning")
-                Log.w("MapActivity", "Distance increased by ${String.format("%.2f", distanceIncrease)}m (threshold: ${DISTANCE_INCREASE_THRESHOLD_METERS}m)")
-                triggerOffRouteSosWarning(distanceIncrease)
-            }
-        } else {
-            // Distance increase dropped below threshold - reset timer
-            if (distanceIncreaseStartTime > 0) {
-                Log.d("MapActivity", "Distance increase dropped below threshold (${String.format("%.2f", distanceIncrease)}m) - resetting timer")
-                distanceIncreaseStartTime = 0
-            }
+        // Check if user has moved too far from origin (325m threshold)
+        if (distanceFromOrigin >= 325.0) {
+            Log.w("MapActivity", "🚨 ORIGIN DISTANCE THRESHOLD EXCEEDED - User is ${String.format("%.2f", distanceFromOrigin)}m from origin")
+            triggerOffRouteSosWarning(distanceFromOrigin)
         }
     }
 
-    /**
-     * Checks if user has deviated 500+ meters from the initial origin-to-destination path segment.
-     * This is different from route polyline deviation - it checks perpendicular distance from
-     * the straight line connecting the starting point to the destination.
-     */
-    private fun checkOriginSegmentDeviation(userPoint: Point) {
-        if (!isNavigating || pinnedLocation == null || currentLocation == null) {
-            return
-        }
-
-        // Skip if SOS warning is disabled in settings
-        val appSettings = com.example.gzingapp.utils.AppSettings(this)
-        if (!appSettings.isSosWarningEnabled()) {
-            return
-        }
-
-        // Skip if SOS already triggered
-        if (offRouteWarningTriggered) {
-            return
-        }
-
-        // Calculate perpendicular distance from user to the origin-destination line segment
-        val perpendicularDistance = calculatePerpendicularDistanceToSegment(
-            userPoint,
-            currentLocation!!,  // Origin (start point)
-            pinnedLocation!!    // Destination (end point)
-        )
-
-        Log.d("MapActivity", "Origin segment deviation check - Perpendicular distance: ${String.format("%.2f", perpendicularDistance)}m (threshold: 500m)")
-
-        // Check if deviation exceeds 500 meters
-        if (perpendicularDistance >= 500.0) {
-            Log.w("MapActivity", "🚨 ORIGIN SEGMENT DEVIATION DETECTED - User is ${String.format("%.2f", perpendicularDistance)}m away from origin-destination path")
-            triggerOffRouteSosWarning(perpendicularDistance)
-        }
-    }
-
-    /**
-     * Calculates the perpendicular distance from a point to a line segment.
-     * Uses the cross product method for accurate geometric calculation.
-     *
-     * @param point The user's current location
-     * @param segmentStart The origin point (where navigation started)
-     * @param segmentEnd The destination point
-     * @return Distance in meters from the point to the line segment
-     */
-    private fun calculatePerpendicularDistanceToSegment(
-        point: Point,
-        segmentStart: Point,
-        segmentEnd: Point
-    ): Double {
-        val R = 6371000.0 // Earth's radius in meters
-
-        // Convert to radians
-        val lat1 = Math.toRadians(segmentStart.latitude())
-        val lon1 = Math.toRadians(segmentStart.longitude())
-        val lat2 = Math.toRadians(segmentEnd.latitude())
-        val lon2 = Math.toRadians(segmentEnd.longitude())
-        val latP = Math.toRadians(point.latitude())
-        val lonP = Math.toRadians(point.longitude())
 
 
-        val x1 = R * Math.cos(lat1) * Math.cos(lon1)
-        val y1 = R * Math.cos(lat1) * Math.sin(lon1)
-        val z1 = R * Math.sin(lat1)
-
-        val x2 = R * Math.cos(lat2) * Math.cos(lon2)
-        val y2 = R * Math.cos(lat2) * Math.sin(lon2)
-        val z2 = R * Math.sin(lat2)
-
-        val xP = R * Math.cos(latP) * Math.cos(lonP)
-        val yP = R * Math.cos(latP) * Math.sin(lonP)
-        val zP = R * Math.sin(latP)
-
-        val dx = x2 - x1
-        val dy = y2 - y1
-        val dz = z2 - z1
-
-        val dpx = xP - x1
-        val dpy = yP - y1
-        val dpz = zP - z1
-
-        val segmentLengthSquared = dx * dx + dy * dy + dz * dz
-
-        if (segmentLengthSquared == 0.0) {
-            return haversineMeters(
-                point.latitude(), point.longitude(),
-                segmentStart.latitude(), segmentStart.longitude()
-            )
-        }
-
-
-        val t = ((dpx * dx + dpy * dy + dpz * dz) / segmentLengthSquared).coerceIn(0.0, 1.0)
-
-        val closestX = x1 + t * dx
-        val closestY = y1 + t * dy
-        val closestZ = z1 + t * dz
-
-
-        val distance = Math.sqrt(
-            (xP - closestX) * (xP - closestX) +
-                    (yP - closestY) * (yP - closestY) +
-                    (zP - closestZ) * (zP - closestZ)
-        )
-
-        return distance
-    }
     
-    private fun increaseFailureRate(increment: Int, reason: String) {
-        if (emergencySmsSent) {
-            Log.d("MapActivity", "Emergency SMS already sent - skipping failure rate increase")
-            return
-        }
-        
-        val oldFailureRate = failureRate
-        failureRate = (failureRate + increment).coerceAtMost(100)
-        
-        Log.d("MapActivity", "Failure rate increased: $oldFailureRate% -> $failureRate% (Reason: $reason)")
-        
-        updateFailureRateUI()
-        
-        // Check if failure rate reached 100%
-        if (failureRate >= 100 && !emergencySmsSent) {
-            triggerEmergencyAlert()
-        }
-    }
-    
-    private fun updateFailureRateUI() {
-        runOnUiThread {
-            // Check if SOS warning is enabled - if so, hide failure rate monitoring
-            val appSettings = com.example.gzingapp.utils.AppSettings(this)
-            if (appSettings.isSosWarningEnabled()) {
-                rowFailureRate.visibility = View.GONE
-                return@runOnUiThread
-            }
-            
-            if (isNavigating) {
-                rowFailureRate.visibility = View.VISIBLE
-                
-                val statusText = when {
-                    failureRate >= 100 -> "EMERGENCY - Off Route"
-                    failureRate >= 70 -> "Critical Deviation"
-                    failureRate >= 40 -> "Route Deviation"
-                    failureRate >= 20 -> "Minor Deviation"
-                    else -> "On Route"
-                }
-                
-                tvFailureRate.text = statusText
-                
-                // Update dot color based on failure rate
-                val color = when {
-                    failureRate >= 100 -> android.graphics.Color.parseColor("#E74C3C") // Red
-                    failureRate >= 70 -> android.graphics.Color.parseColor("#F39C12") // Orange
-                    failureRate >= 40 -> android.graphics.Color.parseColor("#F1C40F") // Yellow
-                    else -> android.graphics.Color.parseColor("#27AE60") // Green
-                }
-                
-                try {
-                    (failureRateDot.background as? android.graphics.drawable.GradientDrawable)?.setColor(color)
-                } catch (_: Exception) { }
-                
-            } else {
-                rowFailureRate.visibility = View.GONE
-            }
-        }
-    }
-    
-    private fun triggerEmergencyAlert() {
-        if (emergencySmsSent) return
-        
-        emergencySmsSent = true
-        Log.e("MapActivity", "🚨 EMERGENCY ALERT TRIGGERED - Failure rate reached 100%!")
-        
-        runOnUiThread {
-            // Show emergency alert dialog
-            AlertDialog.Builder(this)
-                .setTitle("🚨 Emergency Alert")
-                .setMessage("Navigation failure detected! Emergency SMS will be sent to your emergency contacts.")
-                .setPositiveButton("OK") { _, _ ->
-                    sendEmergencySmsAlert()
-                }
-                .setCancelable(false)
-                .show()
-        }
-    }
-    
-    private fun sendEmergencySmsAlert() {
-        if (currentLocation == null) {
-            Log.e("MapActivity", "Cannot send emergency SMS - no current location")
-            Toast.makeText(this, "Cannot send emergency SMS - location not available", Toast.LENGTH_LONG).show()
-            return
-        }
-        
-        // Check SMS permission
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
-            Log.e("MapActivity", "SMS permission not granted")
-            Toast.makeText(this, "SMS permission required for emergency alerts", Toast.LENGTH_LONG).show()
-            return
-        }
-        
-        try {
-            // Get emergency contacts
-            val emergencySMSService = com.example.gzingapp.service.EmergencySMSService(this)
-            val contacts = emergencySMSService.getEmergencyContacts()
-            
-            if (contacts.isEmpty()) {
-                Log.e("MapActivity", "No emergency contacts configured")
-                Toast.makeText(this, "No emergency contacts configured for emergency alerts", Toast.LENGTH_LONG).show()
-                return
-            }
-            
-            val lat = currentLocation!!.latitude()
-            val lng = currentLocation!!.longitude()
-            val message = "⚠️ Emergency Alert: Navigation failure detected. User may be off-route. Location: $lat, $lng. Please check on user immediately."
-            
-            Log.d("MapActivity", "Sending emergency SMS to ${contacts.size} contacts")
-            Log.d("MapActivity", "Message: $message")
-            
-            // Send SMS to all emergency contacts
-            val smsManager = SmsManager.getDefault()
-            for (phoneNumber in contacts) {
-                try {
-                    smsManager.sendTextMessage(phoneNumber, null, message, null, null)
-                    Log.d("MapActivity", "Emergency SMS sent to: $phoneNumber")
-                } catch (e: Exception) {
-                    Log.e("MapActivity", "Failed to send SMS to $phoneNumber", e)
-                }
-            }
-            
-            Toast.makeText(this, "🚨 Emergency SMS sent to all contacts!", Toast.LENGTH_LONG).show()
-            
-        } catch (e: Exception) {
-            Log.e("MapActivity", "Error sending emergency SMS", e)
-            Toast.makeText(this, "Failed to send emergency SMS: ${e.message}", Toast.LENGTH_LONG).show()
-        }
-    }
     
     // ===== OFF-ROUTE SOS WARNING SYSTEM =====
     
@@ -3101,13 +2716,19 @@ class MapActivity : AppCompatActivity() {
     private fun cancelOffRouteSosWarning() {
         if (!offRouteWarningTriggered) return
         
-        Log.d("MapActivity", "User returned to route - but keeping SOS warning active until user action")
+        Log.d("MapActivity", "User returned to route - cancelling SOS warning")
         
-        // Don't dismiss the dialog automatically - let user decide
-        // Just update the offRoute state
+        // Reset all off-route tracking variables
         offRoute = false
+        offRouteWarningTriggered = false
+        offRouteStartTime = 0L
+        onRouteSinceTime = 0L
         
-        // The dialog will remain visible until user clicks "I'm Safe" or "Send Now"
+        // Dismiss any active SOS warning dialog
+        sosWarningDialog?.dismiss()
+        sosWarningDialog = null
+        
+        Log.d("MapActivity", "Off-route warning cancelled - user is back on route")
     }
     
     private fun handleSosWarningCancelled() {
@@ -3127,8 +2748,6 @@ class MapActivity : AppCompatActivity() {
         
         // Reset other state
         offRouteStartTime = 0
-        distanceIncreaseStartTime = 0
-        consecutiveOffRouteCount = 0
         
         Log.d("MapActivity", "State updated: offRoute=$offRoute, isSafe=$isSafe, cooldown until ${cooldownEndTime}")
         
@@ -3157,8 +2776,6 @@ class MapActivity : AppCompatActivity() {
         offRoute = false
         isSafe = false
         offRouteStartTime = 0
-        distanceIncreaseStartTime = 0
-        consecutiveOffRouteCount = 0
         lastSosSentTime = System.currentTimeMillis()
         
         // Start cooldown period
@@ -3179,8 +2796,6 @@ class MapActivity : AppCompatActivity() {
         offRoute = false
         isSafe = false
         offRouteStartTime = 0
-        distanceIncreaseStartTime = 0
-        consecutiveOffRouteCount = 0
         lastSosSentTime = System.currentTimeMillis()
         
         // Start cooldown period
@@ -3375,4 +2990,5 @@ class MapActivity : AppCompatActivity() {
 
         (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).notify(3001, notif)
     }
+
 }

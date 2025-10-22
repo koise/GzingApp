@@ -471,7 +471,6 @@ class NavigationHistoryActivity : AppCompatActivity() {
         dialogView.findViewById<TextView>(R.id.tvDuration).text = "${duration} min"
         dialogView.findViewById<TextView>(R.id.tvTransportMode).text = transportMode.replaceFirstChar { it.uppercase() }
         dialogView.findViewById<TextView>(R.id.tvEstimatedFare).text = String.format("₱%.2f", estimatedFare)
-        dialogView.findViewById<TextView>(R.id.tvUsageCount).text = "Used ${route.usageCount} times"
         dialogView.findViewById<TextView>(R.id.tvCreatedDate).text = formatDateTime(route.createdAt)
         
         // Set favorite icon

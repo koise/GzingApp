@@ -42,11 +42,8 @@ class NavigationRouteAdapter(
         private val tvRouteName: TextView = itemView.findViewById(R.id.tvRouteName)
         private val tvDestination: TextView = itemView.findViewById(R.id.tvDestination)
         private val tvDistance: TextView = itemView.findViewById(R.id.tvDistance)
-        private val tvDuration: TextView = itemView.findViewById(R.id.tvDuration)
         private val tvEstimatedFare: TextView = itemView.findViewById(R.id.tvEstimatedFare)
         private val tvTransportMode: TextView = itemView.findViewById(R.id.tvTransportMode)
-        private val tvCreatedDate: TextView = itemView.findViewById(R.id.tvCreatedDate)
-        private val tvUsageCount: TextView = itemView.findViewById(R.id.tvUsageCount)
         private val ivFavorite: ImageView = itemView.findViewById(R.id.ivFavorite)
         private val ivTransportIcon: ImageView = itemView.findViewById(R.id.ivTransportIcon)
 
@@ -55,10 +52,6 @@ class NavigationRouteAdapter(
             tvDestination.text = route.destinationName
             tvDistance.text = String.format("%.2f km", route.routeDistance.toDoubleOrNull() ?: 0.0)
             
-            // Provide default duration if null
-            val duration = route.estimatedDuration ?: calculateDefaultDuration(route.routeDistance.toDoubleOrNull() ?: 0.0)
-            tvDuration.text = "${duration} min"
-            
             // Display estimated fare with default calculation if null
             val estimatedFare = route.estimatedFare?.toDoubleOrNull() ?: calculateDefaultFare(route.routeDistance.toDoubleOrNull() ?: 0.0)
             tvEstimatedFare.text = String.format("₱%.2f", estimatedFare)
@@ -66,17 +59,6 @@ class NavigationRouteAdapter(
             // Provide default transport mode if empty
             val transportMode = route.transportMode.ifBlank { "driving" }
             tvTransportMode.text = transportMode.replaceFirstChar { it.uppercase() }
-            tvUsageCount.text = "Used ${route.usageCount} times"
-            
-            // Format created date
-            try {
-                val inputFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-                val outputFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
-                val date = inputFormat.parse(route.createdAt)
-                tvCreatedDate.text = outputFormat.format(date ?: Date())
-            } catch (e: Exception) {
-                tvCreatedDate.text = route.createdAt
-            }
             
             // Set favorite icon
             if (route.isFavorite == 1) {
@@ -104,11 +86,6 @@ class NavigationRouteAdapter(
             itemView.findViewById<View>(R.id.btnNavigateAgain)?.setOnClickListener {
                 onNavigateAgain(route)
             }
-        }
-        
-        private fun calculateDefaultDuration(distanceKm: Double): Int {
-            // Assume average speed of 30 km/h for driving
-            return (distanceKm / 30.0 * 60.0).toInt()
         }
         
         private fun calculateDefaultFare(distanceKm: Double): Double {

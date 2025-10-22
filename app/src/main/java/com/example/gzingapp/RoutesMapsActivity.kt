@@ -10,6 +10,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import com.example.gzingapp.data.RouteDetails
 import com.example.gzingapp.data.RouteDetailsApiResponse
 import com.example.gzingapp.data.RouteDetailsPin
@@ -162,6 +164,31 @@ class RoutesMapsActivity : AppCompatActivity() {
     private var hasAnnouncedArrival: Boolean = false
     private var announcedWaypoints: MutableSet<Int> = mutableSetOf()
     private var navTts: android.speech.tts.TextToSpeech? = null
+    
+    // SOS Warning System State Management
+    private var offRouteWarningTriggered: Boolean = false
+    private var offRouteStartTime: Long = 0
+    private val OFF_ROUTE_CONFIRMATION_THRESHOLD = 5 // seconds before triggering SOS
+    private val ON_ROUTE_DEBOUNCE_SECONDS = 3
+    private var onRouteSinceTime: Long = 0L
+    private var sosWarningDialog: com.example.gzingapp.ui.SosWarningDialog? = null
+    
+    // New State Management Variables
+    private var offRoute: Boolean = false
+    private var isSafe: Boolean = false
+    private var cooldownEndTime: Long = 0L
+    private val COOLDOWN_DURATION_SECONDS = 10 // 10 seconds cooldown
+    
+    // GPS Movement Detection - prevent false positives when stationary
+    private var lastCheckedLocation: Point? = null
+    private val MINIMUM_MOVEMENT_METERS = 10.0 // User must move at least 10m to trigger deviation check
+    private var locationUpdateCount: Int = 0
+    private val LOCATION_UPDATES_BEFORE_CHECK = 3 // Wait for 3 GPS updates before checking deviation
+    
+    // Origin tracking for distance-based SOS
+    private var navigationOriginPoint: Point? = null
+    private var hasLeftOriginBuffer: Boolean = false
+    private val ORIGIN_BUFFER_METERS = 200.0
     
     
     companion object {
@@ -2771,6 +2798,18 @@ class RoutesMapsActivity : AppCompatActivity() {
         hasAnnouncedArrival = false
         announcedWaypoints.clear()
         
+        // Reset SOS warning state for new navigation session
+        offRouteWarningTriggered = false
+        offRoute = false
+        isSafe = false
+        cooldownEndTime = 0L
+        offRouteStartTime = 0
+        
+        // Capture origin point when navigation starts
+        navigationOriginPoint = Point.fromLngLat(currentLng, currentLat)
+        hasLeftOriginBuffer = false
+        Log.d(TAG, "Navigation started - Origin: $navigationOriginPoint, Buffer: ${ORIGIN_BUFFER_METERS}m")
+        
         // Update UI to navigation mode
         showNavigationUI()
         
@@ -2819,6 +2858,21 @@ class RoutesMapsActivity : AppCompatActivity() {
         try {
             stopService(Intent(this, com.example.gzingapp.AlarmSoundService::class.java))
         } catch (_: Exception) { }
+        
+        // Cancel any active SOS warning dialog
+        sosWarningDialog?.dismiss()
+        sosWarningDialog = null
+        
+        // Reset SOS warning state when navigation stops
+        offRouteWarningTriggered = false
+        offRoute = false
+        isSafe = false
+        cooldownEndTime = 0L
+        offRouteStartTime = 0
+        
+        // Reset origin point when navigation stops
+        navigationOriginPoint = null
+        hasLeftOriginBuffer = false
         
         // Hide navigation UI and show route details
         hideNavigationUI()
@@ -3265,6 +3319,10 @@ class RoutesMapsActivity : AppCompatActivity() {
             
             // Check waypoint progression for route display
             checkWaypointProgression(location)
+            
+            // Monitor distance from origin for SOS warning
+            val userPoint = Point.fromLngLat(location.longitude, location.latitude)
+            checkOriginDistance(userPoint)
         }
     }
     
@@ -3301,6 +3359,48 @@ class RoutesMapsActivity : AppCompatActivity() {
             }
             
             // Navigation instruction methods removed - only logging waypoint progression
+        }
+    }
+    
+    private fun checkOriginDistance(userPoint: Point) {
+        if (!isNavigationActive || navigationOriginPoint == null) {
+            return
+        }
+
+        // Skip if SOS warning is disabled in settings
+        val appSettings = com.example.gzingapp.utils.AppSettings(this)
+        if (!appSettings.isSosWarningEnabled()) {
+            return
+        }
+
+        // Skip if SOS already triggered
+        if (offRouteWarningTriggered) {
+            return
+        }
+
+        // Calculate distance from origin
+        val distanceFromOrigin = haversineMeters(
+            userPoint.latitude(), userPoint.longitude(),
+            navigationOriginPoint!!.latitude(), navigationOriginPoint!!.longitude()
+        )
+
+        Log.d(TAG, "Origin distance check: ${String.format("%.2f", distanceFromOrigin)}m from origin, buffer: ${ORIGIN_BUFFER_METERS}m")
+
+        // Check if user has left the 200m origin buffer
+        if (!hasLeftOriginBuffer) {
+            if (distanceFromOrigin <= ORIGIN_BUFFER_METERS) {
+                Log.d(TAG, "Still within origin buffer - skipping SOS check")
+                return // Skip all SOS checks while within origin buffer
+            } else {
+                hasLeftOriginBuffer = true
+                Log.d(TAG, "✅ User left origin buffer - enabling SOS detection")
+            }
+        }
+
+        // Only check SOS threshold after user has left the origin buffer
+        if (hasLeftOriginBuffer && distanceFromOrigin >= 325.0) {
+            Log.w(TAG, "🚨 ORIGIN DISTANCE THRESHOLD EXCEEDED - User is ${String.format("%.2f", distanceFromOrigin)}m from origin")
+            triggerOffRouteSosWarning(distanceFromOrigin)
         }
     }
     
@@ -3421,6 +3521,9 @@ class RoutesMapsActivity : AppCompatActivity() {
         } catch (e: Exception) {
             Log.e(TAG, "Error setting up waypoint announcement", e)
         }
+        
+        // Remove blue line when announcer is triggered
+        removeBlueRouteLine()
     }
     
     private fun updateNavigationStepToNext(currentWaypointIndex: Int) {
@@ -3502,6 +3605,33 @@ class RoutesMapsActivity : AppCompatActivity() {
         } catch (e: Exception) {
             Log.e(TAG, "Error setting up destination announcement", e)
         }
+        
+        // Remove blue line when announcer is triggered
+        removeBlueRouteLine()
+    }
+    
+    private fun removeBlueRouteLine() {
+        Log.d(TAG, "=== removeBlueRouteLine START ===")
+        
+        mapView.getMapboxMap().getStyle { style ->
+            try {
+                // Remove the blue route line source and layer
+                if (style.styleSourceExists("mapbox-route-line")) {
+                    style.removeStyleSource("mapbox-route-line")
+                    Log.d(TAG, "Removed mapbox-route-line source")
+                }
+                if (style.styleLayerExists("mapbox-route-line-layer")) {
+                    style.removeStyleLayer("mapbox-route-line-layer")
+                    Log.d(TAG, "Removed mapbox-route-line-layer")
+                }
+                
+                Log.d(TAG, "Blue route line removed successfully")
+            } catch (e: Exception) {
+                Log.e(TAG, "Error removing blue route line", e)
+            }
+        }
+        
+        Log.d(TAG, "=== removeBlueRouteLine END ===")
     }
     
     private fun showDestinationArrivalDialog() {
@@ -3858,5 +3988,219 @@ class RoutesMapsActivity : AppCompatActivity() {
         } catch (e: Exception) {
             Log.e(TAG, "Error updating current location display", e)
         }
+    }
+    
+    // ===== OFF-ROUTE SOS WARNING SYSTEM =====
+    
+    private fun triggerOffRouteSosWarning(deviationDistance: Double) {
+        if (offRouteWarningTriggered) return
+        if (!isNavigationActive) return
+        
+        // Check if user is already marked as safe
+        if (isSafe) {
+            Log.d(TAG, "User marked as safe - skipping SOS warning")
+            return
+        }
+        
+        // Check if we're in cooldown period
+        val currentTime = System.currentTimeMillis()
+        if (cooldownEndTime > currentTime) {
+            val remainingCooldown = (cooldownEndTime - currentTime) / 1000
+            Log.d(TAG, "SOS warning in cooldown - ${remainingCooldown}s remaining")
+            return
+        }
+        
+        // Check if SOS warning is enabled in settings
+        val appSettings = com.example.gzingapp.utils.AppSettings(this)
+        if (!appSettings.isSosWarningEnabled()) {
+            Log.d(TAG, "SOS warning disabled in settings - skipping")
+            return
+        }
+        
+        // Set state variables
+        offRoute = true
+        offRouteWarningTriggered = true
+        
+        Log.w(TAG, "🚨 OFF-ROUTE SOS WARNING TRIGGERED - Deviation: ${String.format("%.1f", deviationDistance)}m")
+        Log.d(TAG, "State: offRoute=$offRoute, isSafe=$isSafe")
+        
+        runOnUiThread {
+            // Fixed 5-second countdown for simple behavior
+            val countdownSeconds = 5
+            
+            sosWarningDialog = com.example.gzingapp.ui.SosWarningDialog(
+                context = this,
+                countdownSeconds = countdownSeconds,
+                onCancelled = {
+                    handleSosWarningCancelled()
+                },
+                onSendNow = {
+                    handleSosSendNow()
+                },
+                onAutoSend = {
+                    handleSosAutoSend()
+                },
+                currentLocation = Point.fromLngLat(currentLng, currentLat),
+                destinationLocation = null, // RoutesMapsActivity doesn't have a single destination
+                deviationDistance = deviationDistance
+            )
+            
+            sosWarningDialog?.show()
+            sosWarningDialog?.startCountdown()
+        }
+    }
+    
+    private fun cancelOffRouteSosWarning() {
+        if (!offRouteWarningTriggered) return
+        
+        Log.d(TAG, "User returned to route - cancelling SOS warning")
+        
+        // Reset all off-route tracking variables
+        offRoute = false
+        offRouteWarningTriggered = false
+        offRouteStartTime = 0L
+        onRouteSinceTime = 0L
+        
+        // Dismiss any active SOS warning dialog
+        sosWarningDialog?.dismiss()
+        sosWarningDialog = null
+        
+        Log.d(TAG, "Off-route warning cancelled - user is back on route")
+    }
+    
+    private fun handleSosWarningCancelled() {
+        Log.d(TAG, "User clicked 'I'm Safe' - cancelling SOS warning")
+        
+        // Dismiss the SOS warning dialog
+        sosWarningDialog?.dismiss()
+        sosWarningDialog = null
+        
+        // Set user as safe and start cooldown
+        isSafe = true
+        offRoute = false
+        offRouteWarningTriggered = false
+        
+        // Start 10-second cooldown
+        cooldownEndTime = System.currentTimeMillis() + (COOLDOWN_DURATION_SECONDS * 1000L)
+        
+        // Reset other state
+        offRouteStartTime = 0
+        
+        Log.d(TAG, "State updated: offRoute=$offRoute, isSafe=$isSafe, cooldown until ${cooldownEndTime}")
+        
+        Toast.makeText(this, "✅ Safety confirmed. Stay safe!", Toast.LENGTH_SHORT).show()
+        
+        // Reset isSafe after cooldown period
+        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+            isSafe = false
+            Log.d(TAG, "Cooldown ended - isSafe reset to false")
+        }, COOLDOWN_DURATION_SECONDS * 1000L)
+    }
+    
+    private fun handleSosSendNow() {
+        Log.w(TAG, "User manually triggered SOS send")
+        sosWarningDialog?.dismiss()
+        sosWarningDialog = null
+        
+        sendOffRouteEmergencySms()
+        
+        // Reset SOS warning state after sending SMS
+        offRouteWarningTriggered = false
+        offRoute = false
+        isSafe = false
+        offRouteStartTime = 0
+        
+        // Start cooldown period
+        cooldownEndTime = System.currentTimeMillis() + (COOLDOWN_DURATION_SECONDS * 1000L)
+        
+        Log.d(TAG, "SOS sent - State reset, cooldown started")
+    }
+    
+    private fun handleSosAutoSend() {
+        Log.e(TAG, "🚨 SOS AUTO-SEND TRIGGERED - Countdown reached zero")
+        sosWarningDialog?.dismiss()
+        sosWarningDialog = null
+        
+        sendOffRouteEmergencySms()
+        
+        // Reset SOS warning state after sending SMS
+        offRouteWarningTriggered = false
+        offRoute = false
+        isSafe = false
+        offRouteStartTime = 0
+        
+        // Start cooldown period
+        cooldownEndTime = System.currentTimeMillis() + (COOLDOWN_DURATION_SECONDS * 1000L)
+        
+        Log.d(TAG, "SOS auto-sent - State reset, cooldown started")
+    }
+    
+    private fun sendOffRouteEmergencySms() {
+        if (currentLat == 0.0 && currentLng == 0.0) {
+            Log.e(TAG, "Cannot send off-route SMS - no location")
+            return
+        }
+        
+        Log.w(TAG, "🚨 SENDING OFF-ROUTE EMERGENCY SMS")
+        Log.d(TAG, "Location: $currentLat, $currentLng")
+        
+        // Get user ID from AppSettings
+        val appSettings = com.example.gzingapp.utils.AppSettings(this)
+        val userId = appSettings.getUserId()
+        
+        if (userId == -1) {
+            Log.e(TAG, "Cannot send emergency SMS - user not logged in")
+            Toast.makeText(this, "Please log in to use emergency features", Toast.LENGTH_LONG).show()
+            return
+        }
+        
+        // Use the EmergencySMSService to send SMS
+        val emergencySmsService = com.example.gzingapp.service.EmergencySMSService(this)
+        
+        // Send emergency SMS directly using the service
+        lifecycleScope.launch {
+            try {
+                val result = emergencySmsService.sendEmergencySMS(
+                    latitude = currentLat,
+                    longitude = currentLng,
+                    emergencyType = "off_route",
+                    customMessage = "I've gone off my planned route and may need help.",
+                    contacts = emptyList() // Will use default contacts from service
+                )
+                
+                result.fold(
+                    onSuccess = { response ->
+                        runOnUiThread {
+                            if (response.success) {
+                                Toast.makeText(this@RoutesMapsActivity, "Emergency SMS sent to all contacts!", Toast.LENGTH_LONG).show()
+                            } else {
+                                Toast.makeText(this@RoutesMapsActivity, "Failed to send emergency SMS: ${response.message}", Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    },
+                    onFailure = { error ->
+                        runOnUiThread {
+                            Toast.makeText(this@RoutesMapsActivity, "Failed to send emergency SMS: ${error.message}", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                )
+            } catch (e: Exception) {
+                runOnUiThread {
+                    Toast.makeText(this@RoutesMapsActivity, "Failed to send emergency SMS: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+    
+    
+    private fun haversineMeters(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+        val R = 6371000.0
+        val dLat = Math.toRadians(lat2 - lat1)
+        val dLon = Math.toRadians(lon2 - lon1)
+        val a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2)
+        val c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+        return R * c
     }
 }
