@@ -87,9 +87,10 @@ dependencies {
     implementation("com.mapbox.extension:maps-compose:11.14.2")
     
     // Mapbox Navigation SDK for real turn-by-turn navigation
-    // TODO: Add correct Navigation SDK dependency once available
-    // The package name and version may need to be verified with Mapbox documentation
-    // For Maps SDK v11.14.2, check: https://docs.mapbox.com/android/navigation/
+    // NOTE: Navigation SDK package/version needs to be verified with Mapbox documentation
+    // For Maps SDK v11.14.2, check: https://docs.mapbox.com/android/navigation/guides/install/
+    // The correct package name and version may differ from what's shown below
+    // TODO: Uncomment and use correct version once identified:
     // implementation("com.mapbox.navigation:android:X.X.X")
     // implementation("com.mapbox.navigation:ui-maps:X.X.X")
     

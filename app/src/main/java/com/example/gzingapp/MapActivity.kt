@@ -95,7 +95,7 @@ import android.telephony.SmsManager
 // import com.mapbox.navigation.ui.maps.route.arrow.api.MapboxRouteArrowApi
 // import com.mapbox.navigation.ui.maps.route.arrow.api.MapboxRouteArrowView
 import android.location.Location as AndroidLocation
-
+    
 class MapActivity : AppCompatActivity() {
 
     private lateinit var mapView: MapView
