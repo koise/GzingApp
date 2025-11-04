@@ -78,6 +78,23 @@ import android.widget.EditText
 import android.widget.CheckBox
 import android.widget.RatingBar
 import android.telephony.SmsManager
+// Mapbox Navigation SDK imports - Uncomment when Navigation SDK dependency is added
+// import com.mapbox.navigation.base.route.NavigationRoute
+// import com.mapbox.navigation.base.route.RouterCallback
+// import com.mapbox.navigation.base.route.RouterFailure
+// import com.mapbox.navigation.base.route.RouterOrigin
+// import com.mapbox.navigation.core.MapboxNavigation
+// import com.mapbox.navigation.core.directions.session.RoutesObserver
+// import com.mapbox.navigation.core.lifecycle.MapboxNavigationObserver
+// import com.mapbox.navigation.core.trip.session.LocationMatcherResult
+// import com.mapbox.navigation.core.trip.session.LocationObserver
+// import com.mapbox.navigation.ui.maps.NavigationStyles
+// import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineApi
+// import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineView
+// import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineOptions
+// import com.mapbox.navigation.ui.maps.route.arrow.api.MapboxRouteArrowApi
+// import com.mapbox.navigation.ui.maps.route.arrow.api.MapboxRouteArrowView
+import android.location.Location as AndroidLocation
 
 class MapActivity : AppCompatActivity() {
 
@@ -86,6 +103,14 @@ class MapActivity : AppCompatActivity() {
     private lateinit var locationCallback: LocationCallback
     private lateinit var locationRequest: LocationRequest
     private lateinit var geofencingClient: GeofencingClient
+    
+    // Mapbox Navigation SDK for real turn-by-turn navigation
+    // TODO: Uncomment when Navigation SDK dependency is added
+    // private var mapboxNavigation: MapboxNavigation? = null
+    // private var routeLineApi: MapboxRouteLineApi? = null
+    // private var routeLineView: MapboxRouteLineView? = null
+    // private var routeArrowApi: MapboxRouteArrowApi? = null
+    // private var routeArrowView: MapboxRouteArrowView? = null
     
     // Navigation Drawer Components
     private lateinit var drawerLayout: DrawerLayout
@@ -241,6 +266,10 @@ class MapActivity : AppCompatActivity() {
         // Setup map
         setupMap()
         
+        // Initialize Mapbox Navigation SDK for real turn-by-turn navigation
+        // TODO: Uncomment when Navigation SDK dependency is added
+        // initializeMapboxNavigation()
+        
         // Setup navigation drawer
         setupNavigationDrawer()
         
@@ -254,6 +283,37 @@ class MapActivity : AppCompatActivity() {
         // Default collapsed state: only show current & start button
         setCardCollapsed(true)
     }
+    
+    // TODO: Uncomment when Navigation SDK dependency is added
+    /*
+    private fun initializeMapboxNavigation() {
+        try {
+            val accessToken = getString(R.string.mapbox_access_token)
+            
+            // Initialize MapboxNavigation with real location engine (not simulated)
+            mapboxNavigation = MapboxNavigation(
+                com.mapbox.navigation.base.options.NavigationOptions.Builder(this)
+                    .accessToken(accessToken)
+                    // Do NOT set .locationEngine() - this enables real navigation using device GPS
+                    .build()
+            )
+            
+            // Initialize route line rendering
+            val routeLineOptions = MapboxRouteLineOptions.Builder(this)
+                .withRouteLineBelowLayerId("road-label") // Adjust based on your map style
+                .build()
+            routeLineApi = MapboxRouteLineApi(routeLineOptions)
+            routeLineView = MapboxRouteLineView(routeLineOptions)
+            routeArrowApi = MapboxRouteArrowApi()
+            routeArrowView = MapboxRouteArrowView()
+            
+            Log.d("MapActivity", "✅ Mapbox Navigation SDK initialized for real navigation")
+        } catch (e: Exception) {
+            Log.e("MapActivity", "❌ Error initializing Navigation SDK: ${e.message}", e)
+            Toast.makeText(this, "Navigation SDK initialization failed: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+    */
     
     private fun initializeViews() {
         // Navigation Drawer
@@ -424,66 +484,54 @@ class MapActivity : AppCompatActivity() {
             return
         }
         
+        // TODO: Uncomment when Navigation SDK is added
+        // // Check if Navigation SDK is initialized
+        // if (enable && mapboxNavigation == null) {
+        //     Toast.makeText(this, "Navigation SDK not initialized. Please restart the app.", Toast.LENGTH_LONG).show()
+        //     return
+        // }
+        
         isNavigating = enable
         
         if (enable) {
-            // Disable drawer and bottom navigation during navigation
+            // Start real navigation using Mapbox Navigation SDK
+            // TODO: Uncomment when Navigation SDK is added
+            // startRealNavigation()
+            
+            // Fallback to existing navigation mode until Navigation SDK is added
             disableDrawerAndBottomNav()
-            // Auto-save the route at navigation start
             try { createRouteFromNavigation() } catch (_: Exception) { }
-            
-            // Capture origin point when navigation starts
             navigationOriginPoint = currentLocation
-            Log.d("MapActivity", "Navigation started - Origin: $navigationOriginPoint")
-        } else {
-            // Re-enable drawer and bottom navigation after navigation stops
-            enableDrawerAndBottomNav()
-            // Clear off-route indicator when navigation stops
-            offRouteLine = null
-            redrawAllLayers()
-            // Cancel any active SOS warning dialog
-            cancelOffRouteSosWarning()
-            // Reset SOS cooldown when navigation stops
-            lastSosSentTime = 0
-            // Reset SOS warning flag when navigation stops
+            hasAnnouncedArrival = false
+            navigationStartTime = System.currentTimeMillis()
+            resetSosSystem()
             sosWarningShownThisSession = false
-            
-            // Reset origin point when navigation stops
-            navigationOriginPoint = null
-            // Reset new state management variables
             offRoute = false
             isSafe = false
             cooldownEndTime = 0L
-            // Reset origin point when navigation stops
+            sendNavigationStartNotification()
+        } else {
+            // Stop real navigation
+            // TODO: Uncomment when Navigation SDK is added
+            // stopRealNavigation()
+            
+            // Fallback cleanup
+            enableDrawerAndBottomNav()
+            offRouteLine = null
+            redrawAllLayers()
+            cancelOffRouteSosWarning()
+            lastSosSentTime = 0
+            sosWarningShownThisSession = false
             navigationOriginPoint = null
+            offRoute = false
+            isSafe = false
+            cooldownEndTime = 0L
         }
         
         btnStartNavigation.text = if (enable) "Stop Navigation" else "Start Navigation"
         btnStartNavigation.setOnClickListener { toggleNavigationMode(!isNavigating) }
-        if (enable) {
-            // Reset arrival flag for new navigation session
-            hasAnnouncedArrival = false
-            navigationStartTime = System.currentTimeMillis() // Record navigation start time
-            
-            // Reset SOS system for new navigation session
-            resetSosSystem()
-            
-            // Capture origin point for distance-based SOS
-            navigationOriginPoint = currentLocation
-            Log.d("MapActivity", "Navigation started - Origin captured: $navigationOriginPoint")
-            
-            // Reset SOS warning flag for new navigation session
-            sosWarningShownThisSession = false
-            // Reset new state management variables for new navigation session
-            offRoute = false
-            isSafe = false
-            cooldownEndTime = 0L
-            
-            try { 
-                android.util.Log.d("NavigationMode", "Starting navigation - hasAnnouncedArrival reset to false") 
-            } catch (_: Exception) { }
-            sendNavigationStartNotification()
-        } else {
+        
+        if (!enable) {
             // Cancel nav notification
             try {
                 (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).cancel(2001)
@@ -498,6 +546,192 @@ class MapActivity : AppCompatActivity() {
         }
         Toast.makeText(this, if (enable) "Navigating..." else "Navigation stopped", Toast.LENGTH_SHORT).show()
     }
+    
+    // TODO: Uncomment when Navigation SDK dependency is added
+    /*
+    private fun startRealNavigation() {
+        if (mapboxNavigation == null || currentLocation == null || pinnedLocation == null) {
+            Log.e("MapActivity", "Cannot start navigation - missing required data")
+            return
+        }
+        
+        Log.d("MapActivity", "🚀 Starting real navigation with Mapbox Navigation SDK")
+        
+        // Disable drawer and bottom navigation during navigation
+        disableDrawerAndBottomNav()
+        
+        // Auto-save the route at navigation start
+        try { createRouteFromNavigation() } catch (_: Exception) { }
+        
+        // Capture origin point when navigation starts
+        navigationOriginPoint = currentLocation
+        Log.d("MapActivity", "Navigation started - Origin: $navigationOriginPoint")
+        
+        // Reset arrival flag for new navigation session
+        hasAnnouncedArrival = false
+        navigationStartTime = System.currentTimeMillis()
+        
+        // Reset SOS system for new navigation session
+        resetSosSystem()
+        
+        // Reset SOS warning flag for new navigation session
+        sosWarningShownThisSession = false
+        offRoute = false
+        isSafe = false
+        cooldownEndTime = 0L
+        
+        // Request route using Mapbox Navigation SDK
+        val origin = currentLocation!!
+        val destination = pinnedLocation!!
+        
+        // Convert transport mode to Mapbox profile
+        val profile = when (selectedTransportMode.lowercase()) {
+            "car", "driving" -> com.mapbox.api.directions.v5.DirectionsCriteria.PROFILE_DRIVING_TRAFFIC
+            "walk", "walking" -> com.mapbox.api.directions.v5.DirectionsCriteria.PROFILE_WALKING
+            "motor", "cycling", "bike" -> com.mapbox.api.directions.v5.DirectionsCriteria.PROFILE_CYCLING
+            else -> com.mapbox.api.directions.v5.DirectionsCriteria.PROFILE_DRIVING
+        }
+        
+        // Build route options
+        val routeOptions = com.mapbox.navigation.base.route.RouteOptions.Builder()
+            .applyDefaultNavigationOptions()
+            .coordinatesList(listOf(origin, destination))
+            .profile(profile)
+            .build()
+        
+        // Request route
+        mapboxNavigation?.requestRoutes(
+            routeOptions,
+            object : RouterCallback {
+                override fun onRoutesReady(routes: List<NavigationRoute>, routerOrigin: RouterOrigin) {
+                    if (routes.isNotEmpty()) {
+                        Log.d("MapActivity", "✅ Route received: ${routes.size} route(s)")
+                        
+                        // Set the navigation routes
+                        mapboxNavigation?.setNavigationRoutes(routes)
+                        
+                        // Start the trip session for real navigation
+                        mapboxNavigation?.startTripSession()
+                        
+                        // Render route line on map
+                        renderRouteOnMap(routes.first())
+                        
+                        // Register location observer for navigation updates
+                        registerNavigationObservers()
+                        
+                        sendNavigationStartNotification()
+                        Toast.makeText(this@MapActivity, "Real navigation started!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Log.e("MapActivity", "No routes received")
+                        Toast.makeText(this@MapActivity, "No route found", Toast.LENGTH_LONG).show()
+                    }
+                }
+                
+                override fun onFailure(reasons: List<RouterFailure>, routeOptions: com.mapbox.navigation.base.route.RouteOptions) {
+                    Log.e("MapActivity", "Route request failed: ${reasons.joinToString { it.message }}")
+                    Toast.makeText(this@MapActivity, "Failed to get route: ${reasons.firstOrNull()?.message}", Toast.LENGTH_LONG).show()
+                }
+                
+                override fun onCanceled(routeOptions: com.mapbox.navigation.base.route.RouteOptions, routerOrigin: RouterOrigin) {
+                    Log.d("MapActivity", "Route request cancelled")
+                }
+            }
+        )
+    }
+    */
+    
+    // TODO: Uncomment when Navigation SDK dependency is added
+    /*
+    private fun renderRouteOnMap(route: NavigationRoute) {
+        routeLineApi?.let { api ->
+            routeLineView?.let { view ->
+                val routeLineResult = api.setNavigationRoutes(listOf(route))
+                val mapboxMap = mapView.mapboxMap
+                mapboxMap.getStyle { style ->
+                    routeLineView?.renderRouteDrawData(style, routeLineResult)
+                }
+            }
+        }
+    }
+    
+    private fun registerNavigationObservers() {
+        mapboxNavigation?.let { navigation ->
+            // Register location observer for real-time location updates
+            navigation.registerLocationObserver(object : LocationObserver {
+                override fun onNewRawLocation(rawLocation: AndroidLocation) {
+                    // Update current location with real GPS data
+                    val point = Point.fromLngLat(rawLocation.longitude, rawLocation.latitude)
+                    currentLocation = point
+                    updateUserLocation(point)
+                    
+                    // Monitor distance from origin for SOS
+                    if (isNavigating) {
+                        checkOriginDistance(point)
+                    }
+                }
+                
+                override fun onNewLocationMatcherResult(locationMatcherResult: LocationMatcherResult) {
+                    // Enhanced location with map matching
+                    val enhancedLocation = locationMatcherResult.enhancedLocation
+                    val point = Point.fromLngLat(enhancedLocation.longitude, enhancedLocation.latitude)
+                    currentLocation = point
+                    updateUserLocation(point)
+                }
+            })
+            
+            // Register routes observer
+            navigation.registerRoutesObserver(object : RoutesObserver {
+                override fun onRoutesChanged(routes: List<NavigationRoute>) {
+                    Log.d("MapActivity", "Routes updated: ${routes.size} route(s)")
+                    if (routes.isNotEmpty()) {
+                        renderRouteOnMap(routes.first())
+                    }
+                }
+            })
+        }
+    }
+    
+    private fun stopRealNavigation() {
+        Log.d("MapActivity", "Stopping real navigation")
+        
+        mapboxNavigation?.let { navigation ->
+            // Stop trip session
+            navigation.stopTripSession()
+            
+            // Clear navigation routes
+            navigation.setNavigationRoutes(emptyList())
+            
+            // Unregister observers
+            navigation.unregisterAllLocationObservers()
+            navigation.unregisterAllRoutesObservers()
+        }
+        
+        // Clear route line from map
+        routeLineApi?.clearNavigationRoutes { result ->
+            mapView.mapboxMap.getStyle { style ->
+                routeLineView?.renderRouteDrawData(style, result)
+            }
+        }
+        
+        // Re-enable drawer and bottom navigation
+        enableDrawerAndBottomNav()
+        
+        // Clear off-route indicator
+        offRouteLine = null
+        redrawAllLayers()
+        
+        // Cancel any active SOS warning dialog
+        cancelOffRouteSosWarning()
+        
+        // Reset SOS cooldown
+        lastSosSentTime = 0
+        sosWarningShownThisSession = false
+        navigationOriginPoint = null
+        offRoute = false
+        isSafe = false
+        cooldownEndTime = 0L
+    }
+    */
     
     private fun disableDrawerAndBottomNav() {
         Log.d("MapActivity", "=== disableDrawerAndBottomNav START ===")
@@ -997,75 +1231,94 @@ class MapActivity : AppCompatActivity() {
     }
     
     private fun setupMap() {
-        mapView.mapboxMap.loadStyle(
-            style(getCurrentStyleUri()) {
-                // Map style is loaded
-                isMapStyleLoaded = true
-                
-                // Add custom pin image for markers
-                vectorToBitmap(R.drawable.ic_custom_pin)?.let { bmp ->
-                    +image("pin-icon", bmp)
-                }
+        Log.d("MapActivity", "Setting up Mapbox map...")
+        val token = com.mapbox.common.MapboxOptions.accessToken
+        Log.d("MapActivity", "Mapbox token check: ${token?.take(10) ?: "NOT SET"}...")
+        
+        if (token.isNullOrEmpty()) {
+            Log.e("MapActivity", "❌ Mapbox access token is not set!")
+            Toast.makeText(this, "Mapbox token not configured. Please check your configuration.", Toast.LENGTH_LONG).show()
+            return
+        }
+        
+        try {
+            mapView.mapboxMap.loadStyle(
+                style(getCurrentStyleUri()) {
+                    // Map style is loaded
+                    isMapStyleLoaded = true
+                    Log.d("MapActivity", "✅ Map style loaded successfully: ${getCurrentStyleUri()}")
+                    
+                    // Add custom pin image for markers
+                    vectorToBitmap(R.drawable.ic_custom_pin)?.let { bmp ->
+                        +image("pin-icon", bmp)
+                    }
 
-                // Add user location source
-                +geoJsonSource("user-location") {
-                    geometry(Point.fromLngLat(0.0, 0.0)) // Initial dummy point
-                }
-                
-                // Add user location layer
-                +circleLayer("user-location-layer", "user-location") {
-                    circleRadius(12.0)
-                    circleColor("#1976D2")
-                    circleStrokeColor("#FFFFFF")
-                    circleStrokeWidth(3.0)
-                    circleOpacity(0.9)
-                }
-                
-                // Add pinned location source
-                +geoJsonSource("pinned-location") {
-                    geometry(Point.fromLngLat(0.0, 0.0)) // Initial dummy point
-                }
-                
-                // Add pinned location as a symbol with custom pin icon
-                +symbolLayer("pinned-symbol-layer", "pinned-location") {
-                    iconImage("pin-icon")
-                    iconSize(0.8)
-                    iconAllowOverlap(true)
-                    iconIgnorePlacement(true)
-                }
-                
-                // Add route source
-                +geoJsonSource("route") {
-                    geometry(LineString.fromLngLats(listOf())) // Initial empty line
-                }
-                
-                // Add route layer
-                +lineLayer("route-layer", "route") {
-                    lineColor("#FF5722")
-                    lineWidth(6.0)
-                    lineOpacity(0.8)
-                }
+                    // Add user location source
+                    +geoJsonSource("user-location") {
+                        geometry(Point.fromLngLat(0.0, 0.0)) // Initial dummy point
+                    }
+                    
+                    // Add user location layer
+                    +circleLayer("user-location-layer", "user-location") {
+                        circleRadius(12.0)
+                        circleColor("#1976D2")
+                        circleStrokeColor("#FFFFFF")
+                        circleStrokeWidth(3.0)
+                        circleOpacity(0.9)
+                    }
+                    
+                    // Add pinned location source
+                    +geoJsonSource("pinned-location") {
+                        geometry(Point.fromLngLat(0.0, 0.0)) // Initial dummy point
+                    }
+                    
+                    // Add pinned location as a symbol with custom pin icon
+                    +symbolLayer("pinned-symbol-layer", "pinned-location") {
+                        iconImage("pin-icon")
+                        iconSize(0.8)
+                        iconAllowOverlap(true)
+                        iconIgnorePlacement(true)
+                    }
+                    
+                    // Add route source
+                    +geoJsonSource("route") {
+                        geometry(LineString.fromLngLats(listOf())) // Initial empty line
+                    }
+                    
+                    // Add route layer
+                    +lineLayer("route-layer", "route") {
+                        lineColor("#FF5722")
+                        lineWidth(6.0)
+                        lineOpacity(0.8)
+                    }
 
-                // Add off-route deviation source and layer (red)
-                +geoJsonSource("offroute") {
-                    geometry(LineString.fromLngLats(listOf()))
+                    // Add off-route deviation source and layer (red)
+                    +geoJsonSource("offroute") {
+                        geometry(LineString.fromLngLats(listOf()))
+                    }
+                    +lineLayer("offroute-layer", "offroute") {
+                        lineColor("#E74C3C")
+                        lineWidth(6.0)
+                        lineOpacity(0.9)
+                        lineCap(LineCap.ROUND)
+                        lineJoin(LineJoin.ROUND)
+                    }
+                    
+                    // Note: Allowed area boundary removed to avoid API conflicts
                 }
-                +lineLayer("offroute-layer", "offroute") {
-                    lineColor("#E74C3C")
-                    lineWidth(6.0)
-                    lineOpacity(0.9)
-                    lineCap(LineCap.ROUND)
-                    lineJoin(LineJoin.ROUND)
-                }
-                
-                // Note: Allowed area boundary removed to avoid API conflicts
-            }
-        )
+            )
+        } catch (e: Exception) {
+            Log.e("MapActivity", "❌ Exception setting up map: ${e.message}", e)
+            Toast.makeText(this, "Error setting up map: ${e.message}", Toast.LENGTH_LONG).show()
+        }
 
         // Enable built-in blue location puck (version-agnostic)
         try {
             mapView.location.updateSettings { enabled = true }
-        } catch (_: Exception) { }
+            Log.d("MapActivity", "Location component enabled")
+        } catch (e: Exception) {
+            Log.e("MapActivity", "Error enabling location component: ${e.message}", e)
+        }
         
         // Map click toggles pin: if exists -> replace; if none -> create
         mapView.gestures.addOnMapClickListener { point ->
@@ -1970,7 +2223,18 @@ class MapActivity : AppCompatActivity() {
         }
     }
     
-    // Lifecycle methods to manage location updates
+    // Lifecycle methods to manage location updates and Navigation SDK
+    override fun onStart() {
+        super.onStart()
+        mapView.onStart()
+        
+        // TODO: Uncomment when Navigation SDK is added
+        // // Start Navigation SDK trip session if navigating
+        // if (isNavigating && mapboxNavigation != null) {
+        //     mapboxNavigation?.startTripSession()
+        // }
+    }
+    
     override fun onResume() {
         super.onResume()
         if (::locationCallback.isInitialized) {
@@ -1985,11 +2249,27 @@ class MapActivity : AppCompatActivity() {
         }
     }
     
+    override fun onStop() {
+        super.onStop()
+        mapView.onStop()
+        
+        // TODO: Uncomment when Navigation SDK is added
+        // // Stop Navigation SDK trip session
+        // if (mapboxNavigation != null) {
+        //     mapboxNavigation?.stopTripSession()
+        // }
+    }
+    
     override fun onDestroy() {
         super.onDestroy()
         if (::locationCallback.isInitialized) {
             stopLocationUpdates()
         }
+        
+        // TODO: Uncomment when Navigation SDK is added
+        // // Clean up Navigation SDK
+        // mapboxNavigation?.onDestroy()
+        // mapboxNavigation = null
     }
     
     private fun performReverseGeocodingForPin(point: Point) {
