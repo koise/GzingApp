@@ -185,8 +185,8 @@ class MapActivity : AppCompatActivity() {
     
     // Origin tracking for distance-based SOS
     private var navigationOriginPoint: Point? = null
-    
-
+    private var hasLeftOriginBuffer: Boolean = false
+    private val ORIGIN_BUFFER_METERS = 200.0
     
     // New State Management Variables
     private var offRoute: Boolean = false
@@ -501,14 +501,30 @@ class MapActivity : AppCompatActivity() {
             // Fallback to existing navigation mode until Navigation SDK is added
             disableDrawerAndBottomNav()
             try { createRouteFromNavigation() } catch (_: Exception) { }
-            navigationOriginPoint = currentLocation
+            
+            // Capture origin point BEFORE resetting SOS system
+            if (currentLocation != null) {
+                navigationOriginPoint = currentLocation
+                hasLeftOriginBuffer = false // Reset buffer flag for new navigation session
+                Log.d("MapActivity", "🚀 Navigation started - Origin point captured: ${navigationOriginPoint?.latitude()}, ${navigationOriginPoint?.longitude()}")
+            } else {
+                Log.e("MapActivity", "⚠️ WARNING: Cannot start navigation - currentLocation is null!")
+                Toast.makeText(this, "Please wait for GPS location before starting navigation", Toast.LENGTH_LONG).show()
+                isNavigating = false
+                return
+            }
+            
             hasAnnouncedArrival = false
             navigationStartTime = System.currentTimeMillis()
-            resetSosSystem()
+            
+            // Reset SOS system (but DON'T clear navigationOriginPoint - it was just set)
+            emergencySmsSent = false
             sosWarningShownThisSession = false
             offRoute = false
             isSafe = false
             cooldownEndTime = 0L
+            offRouteWarningTriggered = false
+            
             sendNavigationStartNotification()
         } else {
             // Stop real navigation
@@ -523,6 +539,7 @@ class MapActivity : AppCompatActivity() {
             lastSosSentTime = 0
             sosWarningShownThisSession = false
             navigationOriginPoint = null
+            hasLeftOriginBuffer = false
             offRoute = false
             isSafe = false
             cooldownEndTime = 0L
@@ -2882,7 +2899,8 @@ class MapActivity : AppCompatActivity() {
     
     private fun resetSosSystem() {
         emergencySmsSent = false
-        navigationOriginPoint = null
+        // DO NOT clear navigationOriginPoint here - it should be set before calling this
+        // or handled separately in toggleNavigationMode
         
         Log.d("MapActivity", "SOS system reset for new navigation session")
     }
@@ -2920,10 +2938,21 @@ class MapActivity : AppCompatActivity() {
             navigationOriginPoint!!.latitude(), navigationOriginPoint!!.longitude()
         )
 
-        Log.d("MapActivity", "Origin distance check: ${String.format("%.2f", distanceFromOrigin)}m from origin")
+        Log.d("MapActivity", "Origin distance check: ${String.format("%.2f", distanceFromOrigin)}m from origin, buffer: ${ORIGIN_BUFFER_METERS}m")
 
-        // Check if user has moved too far from origin (325m threshold)
-        if (distanceFromOrigin >= 325.0) {
+        // Check if user has left the 200m origin buffer
+        if (!hasLeftOriginBuffer) {
+            if (distanceFromOrigin <= ORIGIN_BUFFER_METERS) {
+                Log.d("MapActivity", "Still within origin buffer - skipping SOS check")
+                return // Skip all SOS checks while within origin buffer
+            } else {
+                hasLeftOriginBuffer = true
+                Log.d("MapActivity", "✅ User left origin buffer - enabling SOS detection")
+            }
+        }
+
+        // Only check SOS threshold after user has left the origin buffer
+        if (hasLeftOriginBuffer && distanceFromOrigin >= 325.0) {
             Log.w("MapActivity", "🚨 ORIGIN DISTANCE THRESHOLD EXCEEDED - User is ${String.format("%.2f", distanceFromOrigin)}m from origin")
             triggerOffRouteSosWarning(distanceFromOrigin)
         }
